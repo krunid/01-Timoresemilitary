@@ -3,485 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการข้อมูลบุคลากรและการออม</title>
-    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>ทะเบียนข้อมูลทหารติมอร์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/camouflage.png');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .form-container, .table-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .camouflage-btn {
+            background-color: #4b5e40;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .camouflage-btn:hover {
+            background-color: #5b6e50;
+        }
+    </style>
 </head>
-<body>
-    <div class="min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg">
-            <div class="container mx-auto px-4 py-6">
-                <h1 class="text-2xl md:text-3xl font-semibold text-center">ระบบจัดการข้อมูลบุคลากรและการออม</h1>
-            </div>
-        </header>
-
-        <!-- Navigation Tabs -->
-        <nav class="bg-white shadow-md">
-            <div class="container mx-auto px-4">
-                <div class="flex overflow-x-auto">
-                    <button class="nav-tab active" data-tab="personnel-tab">จัดการข้อมูลบุคลากร</button>
-                    <button class="nav-tab" data-tab="savings-tab">บันทึกข้อมูลการออม</button>
-                    <button class="nav-tab" data-tab="reports-tab">รายงานและแดชบอร์ด</button>
-                </div>
-            </div>
+<body class="min-h-screen flex flex-col font-sans text-gray-800">
+    <header class="bg-green-800 text-white p-4 text-center">
+        <h1 class="text-2xl md:text-3xl font-bold">ทะเบียนข้อมูลทหารติมอร์</h1>
+        <nav class="mt-2">
+            <button onclick="showPage('entry')" class="camouflage-btn px-4 py-2 mx-2 rounded">บันทึกข้อมูล</button>
+            <button onclick="showPage('data')" class="camouflage-btn px-4 py-2 mx-2 rounded">ดูข้อมูล</button>
         </nav>
+    </header>
 
-        <!-- Main Content -->
-        <main class="flex-grow container mx-auto px-4 py-6">
-            <!-- Personnel Management Tab -->
-            <div id="personnel-tab" class="tab-content active">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto">
-                    <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลบุคลากร</h2>
-                    <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
-                    
-                    <form id="personnel-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่ (ระบบจะกำหนดให้อัตโนมัติ)</label>
-                            <input type="text" name="personnel-no" class="form-input bg-gray-100" readonly disabled>
-                            <input type="hidden" id="auto-personnel-no" name="auto-personnel-no">
-                        </div>
-                        
-                        <div class="form-group title-input-container">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">คำนำหน้า</label>
-                            <select id="personnel-title-select" name="personnel-title-select" class="month-picker" required>
-                                <option value="">เลือกคำนำหน้า</option>
-                                <optgroup label="ทั่วไป">
-                                    <option value="นาย">นาย</option>
-                                    <option value="นาง">นาง</option>
-                                    <option value="นางสาว">นางสาว</option>
-                                </optgroup>
-                                <optgroup label="วิชาการ">
-                                    <option value="ดร.">ดร.</option>
-                                    <option value="ผศ.">ผศ.</option>
-                                    <option value="รศ.">รศ.</option>
-                                    <option value="ศ.">ศ.</option>
-                                </optgroup>
-                                <optgroup label="ยศทหารเรือ">
-                                    <option value="พลเรือเอก">พลเรือเอก</option>
-                                    <option value="พลเรือโท">พลเรือโท</option>
-                                    <option value="พลเรือตรี">พลเรือตรี</option>
-                                    <option value="นาวาเอก">นาวาเอก</option>
-                                    <option value="นาวาโท">นาวาโท</option>
-                                    <option value="นาวาตรี">นาวาตรี</option>
-                                    <option value="เรือเอก">เรือเอก</option>
-                                    <option value="เรือโท">เรือโท</option>
-                                    <option value="เรือตรี">เรือตรี</option>
-                                    <option value="พันจ่าเอก">พันจ่าเอก</option>
-                                    <option value="พันจ่าโท">พันจ่าโท</option>
-                                    <option value="พันจ่าตรี">พันจ่าตรี</option>
-                                    <option value="จ่าเอก">จ่าเอก</option>
-                                    <option value="จ่าโท">จ่าโท</option>
-                                    <option value="จ่าตรี">จ่าตรี</option>
-                                </optgroup>
-                                <option value="custom">อื่นๆ (ระบุเอง)</option>
-                            </select>
-                            <div id="custom-title-container" class="custom-title-input">
-                                <input type  ="text" id="personnel-title-custom" name="personnel-title-custom" class="form-input" placeholder="ระบุคำนำหน้า">
-                            </div>
-                            <input type="hidden" id="personnel-title" name="personnel-title">
-                        </div>
-                        
-                        <div class="form-group md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ชื่อ-นามสกุล</label>
-                            <input type="text" name="personnel-name" class="form-input" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">วันเกิด</label>
-                            <input type="text" name="personnel-birthday" class="form-input" placeholder="วัน/เดือน/ปี พ.ศ.">
-                            <p class="date-format-hint">รูปแบบ: วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539</p>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">วันที่เริ่มทำงาน</label>
-                            <input type="text" name="personnel-workday" class="form-input" placeholder="วัน/เดือน/ปี พ.ศ.">
-                            <p class="date-format-hint">รูปแบบ: วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539</p>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
-                            <input type="tel" name="personnel-phone" class="form-input" pattern="[0-9]{9,10}">
-                        </div>
-                        
-                        <div class="form-group md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
-                            <textarea name="personnel-address" class="form-input" rows="2"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ID Line</label>
-                            <input type="text" name="personnel-idline" class="form-input">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
-                            <input type="text" name="personnel-fb" class="form-input">
-                        </div>
-                        
-                        <div class="form-group md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-                            <textarea name="personnel-remake" class="form-input" rows="2"></textarea>
-                        </div>
-                        
-                        <div class="md:col-span-2 mt-4">
-                            <button type="submit" class="btn-primary w-full md:w-auto">
-                                บันทึกข้อมูลบุคลากร
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div id="personnel-loading" class="hidden">
-                        <div class="loader"></div>
-                        <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
-                    </div>
+    <main class="flex-grow container mx-auto p-4">
+        <!-- Data Entry Page -->
+        <div id="entry-page" class="form-container p-6 mx-auto max-w-2xl">
+            <h2 class="text-xl font-semibold mb-4">กรอกข้อมูลทหาร</h2>
+            <form id="personnel-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium">ที่</label>
+                    <input type="text" name="no" required class="w-full p-2 border rounded">
                 </div>
-                
-                <!-- Personnel Data Table -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลบุคลากร</h2>
-                    
-                    <div class="overflow-x-auto">
-                        <table id="personnel-table" class="w-full">
-                            <thead>
-                                <tr class="bg-purple-50 text-purple-800">
-                                    <th class="py-2 px-4 text-left">ลำดับที่</th>
-                                    <th class="py-2 px-4 text-left">คำนำหน้า</th>
-                                    <th class="py-2 px-4 text-left">ชื่อ-นามสกุล</th>
-                                    <th class="py-2 px-4 text-left">วันเกิด</th>
-                                    <th class="py-2 px-4 text-left">วันที่เริ่มทำงาน</th>
-                                    <th class="py-2 px-4 text-left">เบอร์โทรศัพท์</th>
-                                    <th class="py-2 px-4 text-left">ที่อยู่</th>
-                                    <th class="py-2 px-4 text-left">ID Line</th>
-                                    <th class="py-2 px-4 text-left">Facebook</th>
-                                    <th class="py-2 px-4 text-left">หมายเหตุ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="personnel-body">
-                                <tr>
-                                    <td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium">คำนำหน้า/ยศ</label>
+                    <input type="text" name="title" required class="w-full p-2 border rounded">
                 </div>
-            </div>
-            
-            <!-- Savings Management Tab -->
-            <div id="savings-tab" class="tab-content">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto">
-                    <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลการออม</h2>
-                    <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
-                    
-                    <form id="savings-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่การออม (ระบบจะกำหนดให้อัตโนมัติ)</label>
-                            <input type="text" name="savings-no" class="form-input bg-gray-100" readonly disabled>
-                            <input type="hidden" id="auto-savings-no" name="auto-savings-no">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ลำดับที่ผู้ออม</label>
-                            <select id="person-selector" name="person-no" class="month-picker" required>
-                                <option value="">เลือกลำดับที่ผู้ออม</option>
-                            </select>
-                            <div id="person-name-display" class="person-name-display"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">เดือนที่ออม</label>
-                            <select name="savings-month" class="month-picker" required>
-                                <option value="">เลือกเดือน</option>
-                                <option value="มกราคม">มกราคม</option>
-                                <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-                                <option value="มีนาคม">มีนาคม</option>
-                                <option value="เมษายน">เมษายน</option>
-                                <option value="พฤษภาคม">พฤษภาคม</option>
-                                <option value="มิถุนายน">มิถุนายน</option>
-                                <option value="กรกฎาคม">กรกฎาคม</option>
-                                <option value="สิงหาคม">สิงหาคม</option>
-                                <option value="กันยายน">กันยายน</option>
-                                <option value="ตุลาคม">ตุลาคม</option>
-                                <option value="พฤศจิกายน">พฤศจิกายน</option>
-                                <option value="ธันวาคม">ธันวาคม</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ปี พ.ศ.</label>
-                            <select name="savings-year" class="month-picker" required>
-                                <option value="">เลือกปี</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">จำนวนเงิน (บาท)</label>
-                            <input type="number" name="savings-amount" class="form-input" min="1" step="1" required>
-                        </div>
-                        
-                        <div class="form-group md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-                            <textarea name="savings-remark" class="form-input" rows="2"></textarea>
-                        </div>
-                        
-                        <div class="form-group md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">สลิปโอนเงิน</label>
-                            <input type="file" name="savings-slip" class="form-input" accept="image/*,.pdf" disabled>
-                            <p class="file-upload-note">
-                                <span class="text-yellow-600">หมายเหตุ:</span> ระบบไม่รองรับการอัพโหลดไฟล์ในขณะนี้ กรุณาระบุ URL หรือรายละเอียดการโอนในช่องหมายเหตุ
-                            </p>
-                        </div>
-                        
-                        <div class="md:col-span-2 mt-4">
-                            <button type="submit" class="btn-primary w-full md:w-auto">
-                                บันทึกข้อมูลการออม
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div id="savings-loading" class="hidden">
-                        <div class="loader"></div>
-                        <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium">ชื่อ-นามสกุล</label>
+                    <input type="text" name="name" required class="w-full p-2 border rounded">
                 </div>
-                
-                <!-- Savings Data Table -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลการออมล่าสุด</h2>
-                    
-                    <div class="overflow-x-auto">
-                        <table id="savings-table" class="w-full">
-                            <thead>
-                                <tr class="bg-purple-50 text-purple-800">
-                                    <th class="py-2 px-4 text-left">ลำดับที่</th>
-                                    <th class="py-2 px-4 text-left">ผู้ออม</th>
-                                    <th class="py-2 px-4 text-left">เดือน</th>
-                                    <th class="py-2 px-4 text-left">ปี</th>
-                                    <th class="py-2 px-4 text-left">จำนวนเงิน</th>
-                                    <th class="py-2 px-4 text-left">หมายเหตุ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="savings-body">
-                                <tr>
-                                    <td colspan="6" class="text-center py-4">กำลังโหลดข้อมูล...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium">วันเดือนปีเกิด</label>
+                    <input type="date" name="birthday" required class="w-full p-2 border rounded">
                 </div>
-            </div>
-            
-            <!-- Reports and Dashboard Tab -->
-            <div id="reports-tab" class="tab-content">
-                <!-- Dashboard Controls -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                        <h2 class="text-xl font-medium text-purple-800 mb-4 md:mb-0">แดชบอร์ดและรายงาน</h2>
-                        <div class="flex flex-wrap gap-2">
-                            <button id="refresh-dashboard-btn" class="btn-primary flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                รีเฟรชข้อมูล
-                            </button>
-                            <button id="export-pdf-btn" class="btn-secondary flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                ส่งออก PDF
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700">จำนวนบุคลากรทั้งหมด</h3>
-                            <div class="stat-value" id="total-personnel">0</div>
-                            <div class="stat-label">คน</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700">จำนวนเงินออมทั้งหมด</h3>
-                            <div class="stat-value" id="total-savings">0</div>
-                            <div class="stat-label">บาท</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700">จำนวนเงินออมเฉลี่ยต่อคน</h3>
-                            <div class="stat-value" id="avg-savings-per-person">0</div>
-                            <div class="stat-label">บาท/คน</div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700">จำนวนรายการออมทั้งหมด</h3>
-                            <div class="stat-value" id="total-savings-records">0</div>
-                            <div class="stat-label">รายการ</div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700 mb-4">การออมรายเดือน</h3>
-                            <div class="chart-container">
-                                <canvas id="monthly-savings-chart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="dashboard-card">
-                            <h3 class="text-lg font-medium text-gray-700 mb-4">การออมรายบุคคล (5 อันดับแรก)</h3>
-                            <div class="chart-container">
-                                <canvas id="person-savings-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium">วันรับราชการ</label>
+                    <input type="date" name="workday" required class="w-full p-2 border rounded">
                 </div>
-                
-                <!-- Reports Section -->
-                <div id="report-content" class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-medium text-purple-800 mb-6">รายงานข้อมูลการออม</h2>
-                    
-                    <!-- Filter Controls -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามปี</label>
-                            <select id="report-year-filter" class="month-picker">
-                                <option value="all">ทุกปี</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามเดือน</label>
-                            <select id="report-month-filter" class="month-picker">
-                                <option value="all">ทุกเดือน</option>
-                                <option value="มกราคม">มกราคม</option>
-                                <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-                                <option value="มีนาคม">มีนาคม</option>
-                                <option value="เมษายน">เมษายน</option>
-                                <option value="พฤษภาคม">พฤษภาคม</option>
-                                <option value="มิถุนายน">มิถุนายน</option>
-                                <option value="กรกฎาคม">กรกฎาคม</option>
-                                <option value="สิงหาคม">สิงหาคม</option>
-                                <option value="กันยายน">กันยายน</option>
-                                <option value="ตุลาคม">ตุลาคม</option>
-                                <option value="พฤศจิกายน">พฤศจิกายน</option>
-                                <option value="ธันวาคม">ธันวาคม</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามบุคลากร</label>
-                            <select id="report-person-filter" class="month-picker">
-                                <option value="all">ทุกคน</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Summary Section -->
-                    <div class="report-section mb-8">
-                        <h3 class="text-lg font-medium text-purple-800 mb-4">สรุปข้อมูลการออม</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-sm text-gray-600">จำนวนรายการ</div>
-                                <div class="text-2xl font-semibold text-purple-800" id="report-total-records">0</div>
-                            </div>
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-sm text-gray-600">จำนวนเงินรวม</div>
-                                <div class="text-2xl font-semibold text-purple-800" id="report-total-amount">0 บาท</div>
-                            </div>
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-sm text-gray-600">จำนวนเงินเฉลี่ยต่อรายการ</div>
-                                <div class="text-2xl font-semibold text-purple-800" id="report-avg-amount">0 บาท</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Detailed Report Table -->
-                    <div class="report-section">
-                        <h3 class="text-lg font-medium text-purple-800 mb-4">รายละเอียดข้อมูลการออม</h3>
-                        <div class="overflow-x-auto">
-                            <table id="report-table" class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>ลำดับที่</th>
-                                        <th>ผู้ออม</th>
-                                        <th>เดือน</th>
-                                        <th>ปี</th>
-                                        <th>จำนวนเงิน</th>
-                                        <th>หมายเหตุ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="report-table-body">
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">กำลังโหลดข้อมูล...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium">เบอร์โทร</label>
+                    <input type="tel" name="phone" required class="w-full p-2 border rounded">
                 </div>
-                
-                <!-- PDF Export Template (hidden) -->
-                <div id="pdf-template" class="hidden">
-                    <div class="print-only">
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <h1 style="font-size: 24px; color: #6b46c1;">รายงานข้อมูลการออม</h1>
-                            <p id="pdf-date" style="font-size: 14px; color: #6b7280;"></p>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h2 style="font-size: 18px; color: #6b46c1; margin-bottom: 10px;">สรุปข้อมูล</h2>
-                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                                <tr>
-                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
-                                        <div style="font-size: 14px; color: #6b7280;">จำนวนรายการ</div>
-                                        <div id="pdf-total-records" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0</div>
-                                    </td>
-                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
-                                        <div style="font-size: 14px; color: #6b7280;">จำนวนเงินรวม</div>
-                                        <div id="pdf-total-amount" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0 บาท</div>
-                                    </td>
-                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
-                                        <div style="font-size: 14px; color: #6b7280;">จำนวนเงินเฉลี่ยต่อรายการ</div>
-                                        <div id="pdf-avg-amount" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0 บาท</div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        
-                        <div>
-                            <h2 style="font-size: 18px; color: #6b46c1; margin-bottom: 10px;">รายละเอียดข้อมูลการออม</h2>
-                            <table id="pdf-table" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background-color: #f3ebff;">
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ลำดับที่</th>
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ผู้ออม</th>
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">เดือน</th>
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ปี</th>
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">จำนวนเงิน</th>
-                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">หมายเหตุ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pdf-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+                <div>
+                    <label class="block text-sm font-medium">ที่อยู่ปัจจุบัน</label>
+                    <input type="text" name="address" required class="wOSE
 
-        <!-- Footer -->
-        <footer class="bg-purple-800 text-white py-4 mt-8">
-            <div class="container mx-auto px-4 text-center">
-                <p>© 2023 ระบบจัดการข้อมูลบุคลากรและการออม</p>
+                    <label class="block text-sm font-medium">ไอดีไลน์</label>
+                    <input type="text" name="lineId" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">เฟสบุ๊ค</label>
+                    <input type="text" name="facebook" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">หมายเหตุ</label>
+                    <textarea name="remark" class="w-full p-2 border rounded"></textarea>
+                </div>
+                <button type="submit" class="camouflage-btn w-full py-2 rounded">บันทึก</button>
+            </form>
+            <div id="status" class="mt-4 text-center"></div>
+        </div>
+
+        <!-- Data Display Page -->
+        <div id="data-page" class="table-container p-6 mx-auto max-w-4xl hidden">
+            <h2 class="text-xl font-semibold mb-4">ข้อมูลล่าสุด</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-green-700 text-white">
+                            <th class="p-2 border">ที่</th>
+                            <th class="p-2 border">คำนำหน้า/ยศ</th>
+                            <th class="p-2 border">ชื่อ-นามสกุล</th>
+                            <th class="p-2 border">วันเกิด</th>
+                            <th class="p-2 border">วันรับราชการ</th>
+                            <th class="p-2 border">เบอร์โทร</th>
+                            <th class="p-2 border">ที่อยู่</th>
+                            <th class="p-2 border">ไอดีไลน์</th>
+                            <th class="p-2 border">เฟสบุ๊ค</th>
+                            <th class="p-2 border">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table" class="text-sm"></tbody>
+                </table>
             </div>
-        </footer>
-    </div>
-    <script src="script.js"></script>
+        </div>
+    </main>
+
+    <footer class="bg-green-800 text-white text-center p-4">
+        <p>&copy; 2025 ทะเบียนข้อมูลทหารติมอร์</p>
+    </footer>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec';
+        const sheetId = '128xhu9OImxK-Ba4P7UixGfGBe13uYwd0Ug1b01Ttcnk';
+        const form = document.getElementById('personnel-form');
+        const status = document.getElementById('status');
+
+        function showPage(page) {
+            document.getElementById('entry-page').classList.add('hidden');
+            document.getElementById('data-page').classList.add('hidden');
+            document.getElementById(`${page}-page`).classList.remove('hidden');
+            if (page === 'data') fetchData();
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            status.textContent = 'กำลังบันทึก...';
+            status.className = 'text-yellow-600';
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    status.textContent = 'บันทึกข้อมูลสำเร็จ!';
+                    status.className = 'text-green-600';
+                    form.reset();
+                    setTimeout(() => status.textContent = '', 3000);
+                } else {
+                    status.textContent = 'เกิดข้อผิดพลาดในการบันทึก';
+                    status.className = 'text-red-600';
+                }
+            })
+            .catch(error => {
+                status.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
+                status.className = 'text-red-600';
+            });
+        });
+
+        function fetchData() {
+            const url = `${scriptURL}?action=getData&sheetId=${sheetId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('data-table');
+                    tableBody.innerHTML = '';
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="p-2 border">${row.no}</td>
+                            <td class="p-2 border">${row.title}</td>
+                            <td class="p-2 border">${row.name}</td>
+                            <td class="p-2 border">${row.birthday}</td>
+                            <td class="p-2 border">${row.workday}</td>
+                            <td class="p-2 border">${row.phone}</td>
+                            <td class="p-2 border">${row.address}</td>
+                            <td class="p-2 border">${row.lineId || ''}</td>
+                            <td class="p-2 border">${row.facebook || ''}</td>
+                            <td class="p-2 border">${row.remark || ''}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Show entry page by default
+        showPage('entry');
+    </script>
 </body>
 </html>

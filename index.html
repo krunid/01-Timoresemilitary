@@ -112,6 +112,13 @@
             top: 0;
             z-index: 1;
         }
+        .custom-info {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            color: #4b5563;
+            border-bottom: 1px solid #e5e7eb;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -147,6 +154,7 @@
                             <div class="custom-select">
                                 <input type="text" id="title" name="title" required class="custom-select-input" placeholder="เลือกหรือพิมพ์ยศ/คำนำหน้า">
                                 <div class="custom-options" id="titleOptions">
+                                    <div class="custom-info">สามารถพิมพ์ยศหรือคำนำหน้าเองได้</div>
                                     <div class="category-header">ยศทหารเรือ</div>
                                     <div class="custom-option" data-value="พลทหารเรือ">พลทหารเรือ</div>
                                     <div class="custom-option" data-value="จ.ต.">จ.ต.</div>
@@ -416,6 +424,9 @@
             });
             
             try {
+                // Add sheet name to the data
+                data.sheetName = 'personal';
+                
                 // Send data to Google Apps Script
                 const response = await fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec', {
                     method: 'POST',
@@ -458,7 +469,8 @@
             tableBody.innerHTML = '<tr><td colspan="10" class="py-4 px-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>';
             
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=getData');
+                // Add sheet name parameter to the request
+                const response = await fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=getData&sheetName=personal');
                 
                 // Since we can't actually get the response due to CORS, we'll simulate data for demo purposes
                 // In a real implementation, you would parse the response and use the actual data
@@ -469,7 +481,7 @@
                     const sampleData = [
                         {
                             no: '1',
-                            title: 'ร.ท.',
+                            title: 'น.ท.',
                             name: 'สมชาย ใจดี',
                             birthday: '1990-05-15',
                             workday: '2010-07-01',
@@ -481,7 +493,7 @@
                         },
                         {
                             no: '2',
-                            title: 'ร.อ.',
+                            title: 'น.อ.',
                             name: 'วิชัย มานะ',
                             birthday: '1985-11-20',
                             workday: '2008-03-15',
@@ -493,7 +505,7 @@
                         },
                         {
                             no: '3',
-                            title: 'น.ท.',
+                            title: 'พล.ร.ต.',
                             name: 'สมศักดิ์ ทะเลใส',
                             birthday: '1982-03-10',
                             workday: '2005-06-01',
@@ -549,5 +561,5 @@
             }
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94cf371c3498a190',t:'MTc0OTQ1NzI4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94cf7add21b4a183',t:'MTc0OTQ2MDA2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

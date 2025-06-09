@@ -5,35 +5,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทะเบียนข้อมูลทหารติมอร์</title>
+    <title>ระบบจัดการข้อมูลบุคลากรและการออม</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_purple.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Prompt', sans-serif;
             background-color: #f8f5ff;
-        }
-        .tab-active {
-            background-color: #9c6ade;
-            color: white;
-        }
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #9c6ade;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         .form-input {
             border: 1px solid #d4c5f9;
@@ -59,55 +41,154 @@
         .btn-primary:hover {
             background-color: #8a5ad0;
         }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2d9f3;
-        }
-        th {
-            background-color: #e9dffc;
-            color: #5d4b8c;
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
             font-weight: 500;
+            transition: background-color 0.15s ease-in-out;
         }
-        tr:nth-child(even) {
-            background-color: #f8f5ff;
-        }
-        tr:hover {
-            background-color: #f0e8ff;
+        .btn-secondary:hover {
+            background-color: #4b5563;
         }
         .required-field::after {
             content: "*";
             color: #e53e3e;
             margin-left: 2px;
         }
-        /* Thai date picker styling */
-        .flatpickr-input {
-            background-color: #fcfaff !important;
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #9c6ade;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-        .flatpickr-day.selected, 
-        .flatpickr-day.startRange, 
-        .flatpickr-day.endRange, 
-        .flatpickr-day.selected.inRange, 
-        .flatpickr-day.startRange.inRange, 
-        .flatpickr-day.endRange.inRange, 
-        .flatpickr-day.selected:focus, 
-        .flatpickr-day.startRange:focus, 
-        .flatpickr-day.endRange:focus, 
-        .flatpickr-day.selected:hover, 
-        .flatpickr-day.startRange:hover, 
-        .flatpickr-day.endRange:hover, 
-        .flatpickr-day.selected.prevMonthDay, 
-        .flatpickr-day.startRange.prevMonthDay, 
-        .flatpickr-day.endRange.prevMonthDay, 
-        .flatpickr-day.selected.nextMonthDay, 
-        .flatpickr-day.startRange.nextMonthDay, 
-        .flatpickr-day.endRange.nextMonthDay {
-            background: #9c6ade;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .month-picker {
+            background-color: #fcfaff;
+            border: 1px solid #d4c5f9;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+        .month-picker:focus {
+            outline: none;
             border-color: #9c6ade;
+            box-shadow: 0 0 0 3px rgba(156, 106, 222, 0.2);
+        }
+        .file-upload-note {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        .person-name-display {
+            font-size: 0.9rem;
+            color: #6b46c1;
+            font-weight: 500;
+            margin-top: 0.25rem;
+            padding-left: 0.5rem;
+        }
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-tab:hover {
+            background-color: rgba(156, 106, 222, 0.1);
+        }
+        .nav-tab.active {
+            border-bottom-color: #9c6ade;
+            color: #6b46c1;
+            background-color: rgba(156, 106, 222, 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .date-format-hint {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        .title-input-container {
+            position: relative;
+        }
+        .custom-title-input {
+            display: none;
+            margin-top: 0.5rem;
+        }
+        .dashboard-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(156, 106, 222, 0.1);
+            padding: 1.5rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(156, 106, 222, 0.2);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #6b46c1;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .report-section {
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #d4c5f9;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .report-table th {
+            background-color: #f3ebff;
+            color: #6b46c1;
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #fcfaff;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .dashboard-card {
+                box-shadow: none;
+                border: 1px solid #d4c5f9;
+            }
+        }
+        .print-only {
+            display: none;
         }
     </style>
 </head>
@@ -116,182 +197,1176 @@
         <!-- Header -->
         <header class="bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg">
             <div class="container mx-auto px-4 py-6">
-                <h1 class="text-2xl md:text-3xl font-semibold text-center">ทะเบียนข้อมูลทหารติมอร์</h1>
+                <h1 class="text-2xl md:text-3xl font-semibold text-center">ระบบจัดการข้อมูลบุคลากรและการออม</h1>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
-        <div class="bg-purple-100 shadow-md">
+        <nav class="bg-white shadow-md">
             <div class="container mx-auto px-4">
-                <div class="flex">
-                    <button id="tab-form" class="tab-active py-3 px-6 font-medium text-sm md:text-base transition-colors duration-200">
-                        บันทึกข้อมูล
-                    </button>
-                    <button id="tab-data" class="py-3 px-6 font-medium text-sm md:text-base text-purple-800 hover:bg-purple-200 transition-colors duration-200">
-                        ข้อมูลทั้งหมด
-                    </button>
+                <div class="flex overflow-x-auto">
+                    <button class="nav-tab active" data-tab="personnel-tab">จัดการข้อมูลบุคลากร</button>
+                    <button class="nav-tab" data-tab="savings-tab">บันทึกข้อมูลการออม</button>
+                    <button class="nav-tab" data-tab="reports-tab">รายงานและแดชบอร์ด</button>
                 </div>
             </div>
-        </div>
+        </nav>
 
         <!-- Main Content -->
         <main class="flex-grow container mx-auto px-4 py-6">
-            <!-- Form Section -->
-            <div id="form-section" class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลทหาร</h2>
-                <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
+            <!-- Personnel Management Tab -->
+            <div id="personnel-tab" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto">
+                    <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลบุคลากร</h2>
+                    <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
+                    
+                    <form id="personnel-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่ (ระบบจะกำหนดให้อัตโนมัติ)</label>
+                            <input type="text" name="personnel-no" class="form-input bg-gray-100" readonly disabled>
+                            <input type="hidden" id="auto-personnel-no" name="auto-personnel-no">
+                        </div>
+                        
+                        <div class="form-group title-input-container">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">คำนำหน้า</label>
+                            <select id="personnel-title-select" name="personnel-title-select" class="month-picker" required>
+                                <option value="">เลือกคำนำหน้า</option>
+                                <optgroup label="ทั่วไป">
+                                    <option value="นาย">นาย</option>
+                                    <option value="นาง">นาง</option>
+                                    <option value="นางสาว">นางสาว</option>
+                                </optgroup>
+                                <optgroup label="วิชาการ">
+                                    <option value="ดร.">ดร.</option>
+                                    <option value="ผศ.">ผศ.</option>
+                                    <option value="รศ.">รศ.</option>
+                                    <option value="ศ.">ศ.</option>
+                                </optgroup>
+                                <optgroup label="ยศทหารเรือ">
+                                    <option value="พลเรือเอก">พลเรือเอก</option>
+                                    <option value="พลเรือโท">พลเรือโท</option>
+                                    <option value="พลเรือตรี">พลเรือตรี</option>
+                                    <option value="นาวาเอก">นาวาเอก</option>
+                                    <option value="นาวาโท">นาวาโท</option>
+                                    <option value="นาวาตรี">นาวาตรี</option>
+                                    <option value="เรือเอก">เรือเอก</option>
+                                    <option value="เรือโท">เรือโท</option>
+                                    <option value="เรือตรี">เรือตรี</option>
+                                    <option value="พันจ่าเอก">พันจ่าเอก</option>
+                                    <option value="พันจ่าโท">พันจ่าโท</option>
+                                    <option value="พันจ่าตรี">พันจ่าตรี</option>
+                                    <option value="จ่าเอก">จ่าเอก</option>
+                                    <option value="จ่าโท">จ่าโท</option>
+                                    <option value="จ่าตรี">จ่าตรี</option>
+                                </optgroup>
+                                <option value="custom">อื่นๆ (ระบุเอง)</option>
+                            </select>
+                            <div id="custom-title-container" class="custom-title-input">
+                                <input type="text" id="personnel-title-custom" name="personnel-title-custom" class="form-input" placeholder="ระบุคำนำหน้า">
+                            </div>
+                            <input type="hidden" id="personnel-title" name="personnel-title">
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ชื่อ-นามสกุล</label>
+                            <input type="text" name="personnel-name" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันเกิด</label>
+                            <input type="text" name="personnel-birthday" class="form-input" placeholder="วัน/เดือน/ปี พ.ศ.">
+                            <p class="date-format-hint">รูปแบบ: วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันที่เริ่มทำงาน</label>
+                            <input type="text" name="personnel-workday" class="form-input" placeholder="วัน/เดือน/ปี พ.ศ.">
+                            <p class="date-format-hint">รูปแบบ: วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                            <input type="tel" name="personnel-phone" class="form-input" pattern="[0-9]{9,10}">
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
+                            <textarea name="personnel-address" class="form-input" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ID Line</label>
+                            <input type="text" name="personnel-idline" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+                            <input type="text" name="personnel-fb" class="form-input">
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                            <textarea name="personnel-remake" class="form-input" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="md:col-span-2 mt-4">
+                            <button type="submit" class="btn-primary w-full md:w-auto">
+                                บันทึกข้อมูลบุคลากร
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="personnel-loading" class="hidden">
+                        <div class="loader"></div>
+                        <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
+                    </div>
+                </div>
                 
-                <form id="personnel-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่ (ระบบจะกำหนดให้อัตโนมัติ)</label>
-                        <input type="text" name="no" class="form-input bg-gray-100" readonly disabled>
-                        <input type="hidden" id="auto-no" name="auto-no">
-                    </div>
+                <!-- Personnel Data Table -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลบุคลากร</h2>
                     
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">คำนำหน้า/ยศ</label>
-                        <input type="text" name="title" class="form-input" required>
+                    <div class="overflow-x-auto">
+                        <table id="personnel-table" class="w-full">
+                            <thead>
+                                <tr class="bg-purple-50 text-purple-800">
+                                    <th class="py-2 px-4 text-left">ลำดับที่</th>
+                                    <th class="py-2 px-4 text-left">คำนำหน้า</th>
+                                    <th class="py-2 px-4 text-left">ชื่อ-นามสกุล</th>
+                                    <th class="py-2 px-4 text-left">วันเกิด</th>
+                                    <th class="py-2 px-4 text-left">วันที่เริ่มทำงาน</th>
+                                    <th class="py-2 px-4 text-left">เบอร์โทรศัพท์</th>
+                                    <th class="py-2 px-4 text-left">ที่อยู่</th>
+                                    <th class="py-2 px-4 text-left">ID Line</th>
+                                    <th class="py-2 px-4 text-left">Facebook</th>
+                                    <th class="py-2 px-4 text-left">หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="personnel-body">
+                                <tr>
+                                    <td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    
-                    <div class="form-group md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ชื่อ-นามสกุล</label>
-                        <input type="text" name="name" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">วัน/เดือน/ปี เกิด</label>
-                        <input type="text" name="birthday" class="form-input thai-datepicker" placeholder="เลือกวันที่" required>
-                        <input type="hidden" id="birthday-iso" name="birthday-iso">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">วัน/เดือน/ปี รับราชการ</label>
-                        <input type="text" name="workday" class="form-input thai-datepicker" placeholder="เลือกวันที่" required>
-                        <input type="hidden" id="workday-iso" name="workday-iso">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">เบอร์โทร</label>
-                        <input type="tel" name="phone" class="form-input" required>
-                    </div>
-                    
-                    <div class="form-group md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ที่อยู่ปัจจุบัน</label>
-                        <textarea name="address" class="form-input" rows="3" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">ไอดีไลน์</label>
-                        <input type="text" name="idline" class="form-input">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">เฟสบุ๊ค</label>
-                        <input type="text" name="fb" class="form-input">
-                    </div>
-                    
-                    <div class="form-group md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-                        <textarea name="remake" class="form-input" rows="2"></textarea>
-                    </div>
-                    
-                    <div class="md:col-span-2 mt-4">
-                        <button type="submit" class="btn-primary w-full md:w-auto">
-                            บันทึกข้อมูล
-                        </button>
-                    </div>
-                </form>
-                
-                <div id="loading" class="hidden">
-                    <div class="loader"></div>
-                    <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
                 </div>
             </div>
             
-            <!-- Data Section -->
-            <div id="data-section" class="bg-white rounded-lg shadow-md p-6 hidden">
-                <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลทหารทั้งหมด</h2>
+            <!-- Savings Management Tab -->
+            <div id="savings-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8 max-w-2xl mx-auto">
+                    <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลการออม</h2>
+                    <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
+                    
+                    <form id="savings-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่การออม (ระบบจะกำหนดให้อัตโนมัติ)</label>
+                            <input type="text" name="savings-no" class="form-input bg-gray-100" readonly disabled>
+                            <input type="hidden" id="auto-savings-no" name="auto-savings-no">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ลำดับที่ผู้ออม</label>
+                            <select id="person-selector" name="person-no" class="month-picker" required>
+                                <option value="">เลือกลำดับที่ผู้ออม</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                            <div id="person-name-display" class="person-name-display"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">เดือนที่ออม</label>
+                            <select name="savings-month" class="month-picker" required>
+                                <option value="">เลือกเดือน</option>
+                                <option value="มกราคม">มกราคม</option>
+                                <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                                <option value="มีนาคม">มีนาคม</option>
+                                <option value="เมษายน">เมษายน</option>
+                                <option value="พฤษภาคม">พฤษภาคม</option>
+                                <option value="มิถุนายน">มิถุนายน</option>
+                                <option value="กรกฎาคม">กรกฎาคม</option>
+                                <option value="สิงหาคม">สิงหาคม</option>
+                                <option value="กันยายน">กันยายน</option>
+                                <option value="ตุลาคม">ตุลาคม</option>
+                                <option value="พฤศจิกายน">พฤศจิกายน</option>
+                                <option value="ธันวาคม">ธันวาคม</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ปี พ.ศ.</label>
+                            <select name="savings-year" class="month-picker" required>
+                                <option value="">เลือกปี</option>
+                                <!-- Years will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-1 required-field">จำนวนเงิน (บาท)</label>
+                            <input type="number" name="savings-amount" class="form-input" min="1" step="1" required>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                            <textarea name="savings-remark" class="form-input" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">สลิปโอนเงิน</label>
+                            <p class="file-upload-note">
+                                <span class="text-yellow-600">หมายเหตุ:</span> ระบบไม่รองรับการอัพโหลดไฟล์ในขณะนี้ กรุณาระบุรายละเอียดการโอนในช่องหมายเหตุ
+                            </p>
+                        </div>
+                        
+                        <div class="md:col-span-2 mt-4">
+                            <button type="submit" class="btn-primary w-full md:w-auto">
+                                บันทึกข้อมูลการออม
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="savings-loading" class="hidden">
+                        <div class="loader"></div>
+                        <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
+                    </div>
+                </div>
                 
-                <div class="overflow-x-auto">
-                    <table id="data-table" class="w-full">
-                        <thead>
-                            <tr>
-                                <th>ลำดับที่</th>
-                                <th>ยศ</th>
-                                <th>ชื่อ-นามสกุล</th>
-                                <th>วันเกิด</th>
-                                <th>วันรับราชการ</th>
-                                <th>เบอร์โทร</th>
-                                <th>ที่อยู่</th>
-                                <th>ไอดีไลน์</th>
-                                <th>เฟสบุ๊ค</th>
-                                <th>หมายเหตุ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-body">
-                            <tr>
-                                <td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Savings Data Table -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลการออมล่าสุด</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table id="savings-table" class="w-full">
+                            <thead>
+                                <tr class="bg-purple-50 text-purple-800">
+                                    <th class="py-2 px-4 text-left">ลำดับที่</th>
+                                    <th class="py-2 px-4 text-left">ผู้ออม</th>
+                                    <th class="py-2 px-4 text-left">เดือน</th>
+                                    <th class="py-2 px-4 text-left">ปี</th>
+                                    <th class="py-2 px-4 text-left">จำนวนเงิน</th>
+                                    <th class="py-2 px-4 text-left">หมายเหตุ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="savings-body">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">กำลังโหลดข้อมูล...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports and Dashboard Tab -->
+            <div id="reports-tab" class="tab-content">
+                <!-- Dashboard Controls -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                        <h2 class="text-xl font-medium text-purple-800 mb-4 md:mb-0">แดชบอร์ดและรายงาน</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="refresh-dashboard-btn" class="btn-primary flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                รีเฟรชข้อมูล
+                            </button>
+                            <button id="export-pdf-btn" class="btn-secondary flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                ส่งออก PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700">จำนวนบุคลากรทั้งหมด</h3>
+                            <div class="stat-value" id="total-personnel">0</div>
+                            <div class="stat-label">คน</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700">จำนวนเงินออมทั้งหมด</h3>
+                            <div class="stat-value" id="total-savings">0</div>
+                            <div class="stat-label">บาท</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700">จำนวนเงินออมเฉลี่ยต่อคน</h3>
+                            <div class="stat-value" id="avg-savings-per-person">0</div>
+                            <div class="stat-label">บาท/คน</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700">จำนวนรายการออมทั้งหมด</h3>
+                            <div class="stat-value" id="total-savings-records">0</div>
+                            <div class="stat-label">รายการ</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700 mb-4">การออมรายเดือน</h3>
+                            <div class="chart-container">
+                                <canvas id="monthly-savings-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="text-lg font-medium text-gray-700 mb-4">การออมรายบุคคล (5 อันดับแรก)</h3>
+                            <div class="chart-container">
+                                <canvas id="person-savings-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports Section -->
+                <div id="report-content" class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-medium text-purple-800 mb-6">รายงานข้อมูลการออม</h2>
+                    
+                    <!-- Filter Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามปี</label>
+                            <select id="report-year-filter" class="month-picker">
+                                <option value="all">ทุกปี</option>
+                                <!-- Years will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามเดือน</label>
+                            <select id="report-month-filter" class="month-picker">
+                                <option value="all">ทุกเดือน</option>
+                                <option value="มกราคม">มกราคม</option>
+                                <option value="กุมภาพันธ์">กุมภาพันธ์</option>
+                                <option value="มีนาคม">มีนาคม</option>
+                                <option value="เมษายน">เมษายน</option>
+                                <option value="พฤษภาคม">พฤษภาคม</option>
+                                <option value="มิถุนายน">มิถุนายน</option>
+                                <option value="กรกฎาคม">กรกฎาคม</option>
+                                <option value="สิงหาคม">สิงหาคม</option>
+                                <option value="กันยายน">กันยายน</option>
+                                <option value="ตุลาคม">ตุลาคม</option>
+                                <option value="พฤศจิกายน">พฤศจิกายน</option>
+                                <option value="ธันวาคม">ธันวาคม</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">กรองตามบุคลากร</label>
+                            <select id="report-person-filter" class="month-picker">
+                                <option value="all">ทุกคน</option>
+                                <!-- Personnel will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Section -->
+                    <div class="report-section mb-8">
+                        <h3 class="text-lg font-medium text-purple-800 mb-4">สรุปข้อมูลการออม</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="text-sm text-gray-600">จำนวนรายการ</div>
+                                <div class="text-2xl font-semibold text-purple-800" id="report-total-records">0</div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="text-sm text-gray-600">จำนวนเงินรวม</div>
+                                <div class="text-2xl font-semibold text-purple-800" id="report-total-amount">0 บาท</div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="text-sm text-gray-600">จำนวนเงินเฉลี่ยต่อรายการ</div>
+                                <div class="text-2xl font-semibold text-purple-800" id="report-avg-amount">0 บาท</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Report Table -->
+                    <div class="report-section">
+                        <h3 class="text-lg font-medium text-purple-800 mb-4">รายละเอียดข้อมูลการออม</h3>
+                        <div class="overflow-x-auto">
+                            <table id="report-table" class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>ลำดับที่</th>
+                                        <th>ผู้ออม</th>
+                                        <th>เดือน</th>
+                                        <th>ปี</th>
+                                        <th>จำนวนเงิน</th>
+                                        <th>หมายเหตุ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">กำลังโหลดข้อมูล...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PDF Export Template (hidden) -->
+                <div id="pdf-template" class="hidden">
+                    <div class="print-only">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h1 style="font-size: 24px; color: #6b46c1;">รายงานข้อมูลการออม</h1>
+                            <p id="pdf-date" style="font-size: 14px; color: #6b7280;"></p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h2 style="font-size: 18px; color: #6b46c1; margin-bottom: 10px;">สรุปข้อมูล</h2>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
+                                        <div style="font-size: 14px; color: #6b7280;">จำนวนรายการ</div>
+                                        <div id="pdf-total-records" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0</div>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
+                                        <div style="font-size: 14px; color: #6b7280;">จำนวนเงินรวม</div>
+                                        <div id="pdf-total-amount" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0 บาท</div>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #d4c5f9; width: 33%;">
+                                        <div style="font-size: 14px; color: #6b7280;">จำนวนเงินเฉลี่ยต่อรายการ</div>
+                                        <div id="pdf-avg-amount" style="font-size: 18px; font-weight: bold; color: #6b46c1;">0 บาท</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div>
+                            <h2 style="font-size: 18px; color: #6b46c1; margin-bottom: 10px;">รายละเอียดข้อมูลการออม</h2>
+                            <table id="pdf-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #f3ebff;">
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ลำดับที่</th>
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ผู้ออม</th>
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">เดือน</th>
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">ปี</th>
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">จำนวนเงิน</th>
+                                        <th style="padding: 8px; border: 1px solid #d4c5f9; text-align: left;">หมายเหตุ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pdf-table-body">
+                                    <!-- Will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-purple-800 text-white py-4">
+        <footer class="bg-purple-800 text-white py-4 mt-8">
             <div class="container mx-auto px-4 text-center">
-                <p>&copy; 2025 ทะเบียนข้อมูลทหารติมอร์</p>
+                <p>&copy; 2023 ระบบจัดการข้อมูลบุคลากรและการออม</p>
             </div>
         </footer>
     </div>
 
     <script>
-        // Initialize Thai date pickers
+        // Global variables to store personnel data
+        let personnelData = [];
+        let personnelMap = {};
+        let savingsData = [];
+        let monthlyChartInstance = null;
+        let personChartInstance = null;
+        
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // If reports tab is selected, initialize dashboard
+                if (tabId === 'reports-tab') {
+                    initializeDashboard();
+                }
+            });
+        });
+        
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Set Thai locale for flatpickr
-            flatpickr.localize(flatpickr.l10ns.th);
+            // Initialize sheets
+            initializePersonnelSheet();
+            initializeSavingsSheet();
             
-            // Initialize birthday date picker
-            const birthdayPicker = flatpickr('.thai-datepicker[name="birthday"]', {
-                dateFormat: "d MMMM yyyy",
-                locale: "th",
-                yearOffset: 543, // Buddhist Era
-                onChange: function(selectedDates, dateStr, instance) {
-                    // Store ISO date for submission
-                    const isoDate = selectedDates[0].toISOString().split('T')[0];
-                    document.getElementById('birthday-iso').value = isoDate;
+            // Load personnel data
+            loadPersonnelData();
+            loadPersonnelSequenceNumber();
+            
+            // Load savings data
+            loadSavingsSequenceNumber();
+            loadSavingsData();
+            
+            // Populate year dropdown for savings
+            populateYearDropdowns();
+            
+            // Add event listener for person selector
+            document.getElementById('person-selector').addEventListener('change', function() {
+                const personNo = this.value;
+                const personNameDisplay = document.getElementById('person-name-display');
+                
+                if (personNo && personnelMap[personNo]) {
+                    const person = personnelMap[personNo];
+                    personNameDisplay.textContent = `${person.title || ''} ${person.name || ''}`;
+                } else {
+                    personNameDisplay.textContent = '';
                 }
             });
             
-            // Initialize workday date picker
-            const workdayPicker = flatpickr('.thai-datepicker[name="workday"]', {
-                dateFormat: "d MMMM yyyy",
-                locale: "th",
-                yearOffset: 543, // Buddhist Era
-                onChange: function(selectedDates, dateStr, instance) {
-                    // Store ISO date for submission
-                    const isoDate = selectedDates[0].toISOString().split('T')[0];
-                    document.getElementById('workday-iso').value = isoDate;
+            // Add date format validation
+            document.querySelector('input[name="personnel-birthday"]').addEventListener('blur', validateDateFormat);
+            document.querySelector('input[name="personnel-workday"]').addEventListener('blur', validateDateFormat);
+            
+            // Add event listener for title selector
+            document.getElementById('personnel-title-select').addEventListener('change', function() {
+                const customTitleContainer = document.getElementById('custom-title-container');
+                const customTitleInput = document.getElementById('personnel-title-custom');
+                
+                if (this.value === 'custom') {
+                    customTitleContainer.style.display = 'block';
+                    customTitleInput.required = true;
+                    customTitleInput.focus();
+                } else {
+                    customTitleContainer.style.display = 'none';
+                    customTitleInput.required = false;
+                }
+                
+                // Update the hidden field with the selected title
+                updateTitleField();
+            });
+            
+            // Add event listener for custom title input
+            document.getElementById('personnel-title-custom').addEventListener('input', updateTitleField);
+            
+            // Add event listeners for report filters
+            document.getElementById('report-year-filter').addEventListener('change', filterReportData);
+            document.getElementById('report-month-filter').addEventListener('change', filterReportData);
+            document.getElementById('report-person-filter').addEventListener('change', filterReportData);
+            
+            // Add event listener for refresh dashboard button
+            document.getElementById('refresh-dashboard-btn').addEventListener('click', function() {
+                loadAllData();
+            });
+            
+            // Add event listener for export PDF button
+            document.getElementById('export-pdf-btn').addEventListener('click', exportToPDF);
+        });
+        
+        // Load all data for dashboard
+        function loadAllData() {
+            // Show loading indicators
+            document.getElementById('total-personnel').textContent = '...';
+            document.getElementById('total-savings').textContent = '...';
+            document.getElementById('avg-savings-per-person').textContent = '...';
+            document.getElementById('total-savings-records').textContent = '...';
+            
+            // Load personnel data
+            loadPersonnelData();
+            
+            // Load savings data and update dashboard
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?sheet=savings')
+                .then(response => response.json())
+                .then(data => {
+                    savingsData = data;
+                    updateDashboard(data);
+                    updateReportData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading savings data for dashboard:', error);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: 'ไม่สามารถโหลดข้อมูลการออมได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#9c6ade'
+                    });
+                });
+        }
+        
+        // Initialize dashboard
+        function initializeDashboard() {
+            if (savingsData.length === 0) {
+                loadAllData();
+            } else {
+                updateDashboard(savingsData);
+                updateReportData(savingsData);
+            }
+        }
+        
+        // Update dashboard with data
+        function updateDashboard(data) {
+            // Calculate total personnel
+            const totalPersonnel = Object.keys(personnelMap).length;
+            document.getElementById('total-personnel').textContent = totalPersonnel;
+            
+            // Calculate total savings amount
+            let totalSavings = 0;
+            data.forEach(item => {
+                totalSavings += parseFloat(item.amount) || 0;
+            });
+            document.getElementById('total-savings').textContent = formatCurrency(totalSavings, false);
+            
+            // Calculate average savings per person
+            const avgSavingsPerPerson = totalPersonnel > 0 ? totalSavings / totalPersonnel : 0;
+            document.getElementById('avg-savings-per-person').textContent = formatCurrency(avgSavingsPerPerson, false);
+            
+            // Set total savings records
+            document.getElementById('total-savings-records').textContent = data.length;
+            
+            // Update charts
+            updateMonthlyChart(data);
+            updatePersonChart(data);
+        }
+        
+        // Update monthly savings chart
+        function updateMonthlyChart(data) {
+            // Define Thai months in order
+            const thaiMonths = [
+                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            
+            // Get current year
+            const currentYear = new Date().getFullYear() + 543; // Buddhist Era
+            
+            // Initialize monthly totals
+            const monthlyTotals = {};
+            thaiMonths.forEach(month => {
+                monthlyTotals[month] = 0;
+            });
+            
+            // Calculate totals for each month in the current year
+            data.forEach(item => {
+                if (parseInt(item.year) === currentYear && thaiMonths.includes(item.month)) {
+                    monthlyTotals[item.month] += parseFloat(item.amount) || 0;
                 }
             });
-        });
+            
+            // Prepare chart data
+            const chartLabels = thaiMonths;
+            const chartData = thaiMonths.map(month => monthlyTotals[month]);
+            
+            // Get the canvas element
+            const ctx = document.getElementById('monthly-savings-chart').getContext('2d');
+            
+            // Destroy previous chart instance if it exists
+            if (monthlyChartInstance) {
+                monthlyChartInstance.destroy();
+            }
+            
+            // Create new chart
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: `ยอดเงินออมรายเดือน ปี ${currentYear}`,
+                        data: chartData,
+                        backgroundColor: 'rgba(156, 106, 222, 0.6)',
+                        borderColor: 'rgba(156, 106, 222, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('th-TH') + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toLocaleString('th-TH') + ' บาท';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
         
-        // Tab switching functionality
-        document.getElementById('tab-form').addEventListener('click', function() {
-            document.getElementById('form-section').classList.remove('hidden');
-            document.getElementById('data-section').classList.add('hidden');
-            document.getElementById('tab-form').classList.add('tab-active');
-            document.getElementById('tab-data').classList.remove('tab-active');
-        });
+        // Update person savings chart
+        function updatePersonChart(data) {
+            // Calculate totals for each person
+            const personTotals = {};
+            
+            data.forEach(item => {
+                const personNo = item.person_no;
+                const personName = item.person_name;
+                
+                if (personNo && personName) {
+                    const key = `${personNo} - ${personName}`;
+                    if (!personTotals[key]) {
+                        personTotals[key] = 0;
+                    }
+                    personTotals[key] += parseFloat(item.amount) || 0;
+                }
+            });
+            
+            // Sort persons by total amount and get top 5
+            const sortedPersons = Object.entries(personTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            // Prepare chart data
+            const chartLabels = sortedPersons.map(item => {
+                const name = item[0].split(' - ')[1];
+                // Truncate long names
+                return name.length > 15 ? name.substring(0, 15) + '...' : name;
+            });
+            const chartData = sortedPersons.map(item => item[1]);
+            
+            // Get the canvas element
+            const ctx = document.getElementById('person-savings-chart').getContext('2d');
+            
+            // Destroy previous chart instance if it exists
+            if (personChartInstance) {
+                personChartInstance.destroy();
+            }
+            
+            // Create new chart
+            personChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'ยอดเงินออมรวม',
+                        data: chartData,
+                        backgroundColor: 'rgba(79, 209, 197, 0.6)',
+                        borderColor: 'rgba(79, 209, 197, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('th-TH') + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toLocaleString('th-TH') + ' บาท';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
         
-        document.getElementById('tab-data').addEventListener('click', function() {
-            document.getElementById('form-section').classList.add('hidden');
-            document.getElementById('data-section').classList.remove('hidden');
-            document.getElementById('tab-form').classList.remove('tab-active');
-            document.getElementById('tab-data').classList.add('tab-active');
-            loadData();
-        });
+        // Update report data
+        function updateReportData(data) {
+            // Populate year filter
+            const yearFilter = document.getElementById('report-year-filter');
+            const years = [...new Set(data.map(item => item.year))].filter(Boolean).sort((a, b) => b - a);
+            
+            // Clear existing options except the first one
+            while (yearFilter.options.length > 1) {
+                yearFilter.remove(1);
+            }
+            
+            // Add year options
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+            
+            // Populate person filter
+            const personFilter = document.getElementById('report-person-filter');
+            
+            // Clear existing options except the first one
+            while (personFilter.options.length > 1) {
+                personFilter.remove(1);
+            }
+            
+            // Get unique persons from savings data
+            const uniquePersons = {};
+            data.forEach(item => {
+                if (item.person_no && item.person_name) {
+                    uniquePersons[item.person_no] = item.person_name;
+                }
+            });
+            
+            // Add person options
+            Object.entries(uniquePersons).forEach(([personNo, personName]) => {
+                const option = document.createElement('option');
+                option.value = personNo;
+                option.textContent = `${personNo} - ${personName}`;
+                personFilter.appendChild(option);
+            });
+            
+            // Apply initial filter
+            filterReportData();
+        }
+        
+        // Filter report data based on selected filters
+        function filterReportData() {
+            const yearFilter = document.getElementById('report-year-filter').value;
+            const monthFilter = document.getElementById('report-month-filter').value;
+            const personFilter = document.getElementById('report-person-filter').value;
+            
+            // Filter data
+            let filteredData = [...savingsData];
+            
+            if (yearFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.year === yearFilter);
+            }
+            
+            if (monthFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.month === monthFilter);
+            }
+            
+            if (personFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.person_no === personFilter);
+            }
+            
+            // Sort by sequence number in descending order
+            filteredData.sort((a, b) => parseInt(b.no) - parseInt(a.no));
+            
+            // Update report table
+            updateReportTable(filteredData);
+            
+            // Update summary
+            updateReportSummary(filteredData);
+        }
+        
+        // Update report table with filtered data
+        function updateReportTable(data) {
+            const tableBody = document.getElementById('report-table-body');
+            
+            if (data && data.length > 0) {
+                tableBody.innerHTML = '';
+                
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    tr.innerHTML = `
+                        <td>${row.no || ''}</td>
+                        <td>${row.person_name || ''}</td>
+                        <td>${row.month || ''}</td>
+                        <td>${row.year || ''}</td>
+                        <td>${formatCurrency(row.amount)}</td>
+                        <td>${row.remark || ''}</td>
+                    `;
+                    
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">ไม่พบข้อมูล</td></tr>';
+            }
+        }
+        
+        // Update report summary
+        function updateReportSummary(data) {
+            // Calculate total records
+            const totalRecords = data.length;
+            document.getElementById('report-total-records').textContent = totalRecords;
+            
+            // Calculate total amount
+            let totalAmount = 0;
+            data.forEach(item => {
+                totalAmount += parseFloat(item.amount) || 0;
+            });
+            document.getElementById('report-total-amount').textContent = formatCurrency(totalAmount);
+            
+            // Calculate average amount per record
+            const avgAmount = totalRecords > 0 ? totalAmount / totalRecords : 0;
+            document.getElementById('report-avg-amount').textContent = formatCurrency(avgAmount);
+        }
+        
+        // Export report to PDF
+        function exportToPDF() {
+            // Show loading indicator
+            Swal.fire({
+                title: 'กำลังสร้าง PDF',
+                text: 'กรุณารอสักครู่...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Get current date for PDF header
+            const now = new Date();
+            const dateStr = `วันที่ ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear() + 543}`;
+            document.getElementById('pdf-date').textContent = dateStr;
+            
+            // Copy summary data to PDF template
+            document.getElementById('pdf-total-records').textContent = document.getElementById('report-total-records').textContent;
+            document.getElementById('pdf-total-amount').textContent = document.getElementById('report-total-amount').textContent;
+            document.getElementById('pdf-avg-amount').textContent = document.getElementById('report-avg-amount').textContent;
+            
+            // Copy table data to PDF template
+            const reportTableBody = document.getElementById('report-table-body');
+            const pdfTableBody = document.getElementById('pdf-table-body');
+            pdfTableBody.innerHTML = reportTableBody.innerHTML;
+            
+            // Get filters for filename
+            const yearFilter = document.getElementById('report-year-filter');
+            const monthFilter = document.getElementById('report-month-filter');
+            const personFilter = document.getElementById('report-person-filter');
+            
+            const yearText = yearFilter.value !== 'all' ? yearFilter.options[yearFilter.selectedIndex].text : 'ทุกปี';
+            const monthText = monthFilter.value !== 'all' ? monthFilter.options[monthFilter.selectedIndex].text : 'ทุกเดือน';
+            const personText = personFilter.value !== 'all' ? personFilter.options[personFilter.selectedIndex].text.split(' - ')[1] : 'ทุกคน';
+            
+            // Create filename
+            const filename = `รายงานการออม_${yearText}_${monthText}_${personText}.pdf`;
+            
+            // Use html2canvas and jsPDF to create PDF
+            setTimeout(() => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                html2canvas(document.getElementById('pdf-template'), {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 297; // A4 height in mm
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        doc.addPage();
+                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    doc.save(filename);
+                    
+                    // Hide loading indicator
+                    Swal.fire({
+                        title: 'สร้าง PDF สำเร็จ!',
+                        text: 'ไฟล์ PDF ถูกดาวน์โหลดแล้ว',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#9c6ade'
+                    });
+                }).catch(error => {
+                    console.error('Error generating PDF:', error);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: 'ไม่สามารถสร้างไฟล์ PDF ได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#9c6ade'
+                    });
+                });
+            }, 500);
+        }
+        
+        // Populate year dropdowns
+        function populateYearDropdowns() {
+            const currentYear = new Date().getFullYear() + 543; // Buddhist Era
+            const yearSelect = document.querySelector('select[name="savings-year"]');
+            
+            // Add years (current year and 5 years back)
+            for (let i = 0; i < 6; i++) {
+                const year = currentYear - i;
+                const yearOption = document.createElement('option');
+                yearOption.value = year;
+                yearOption.textContent = year;
+                yearSelect.appendChild(yearOption);
+            }
+        }
+        
+        // Update the hidden title field with the selected or custom title
+        function updateTitleField() {
+            const titleSelect = document.getElementById('personnel-title-select');
+            const customTitleInput = document.getElementById('personnel-title-custom');
+            const titleField = document.getElementById('personnel-title');
+            
+            if (titleSelect.value === 'custom') {
+                titleField.value = customTitleInput.value;
+            } else {
+                titleField.value = titleSelect.value;
+            }
+        }
+        
+        // Validate date format (dd/mm/yyyy)
+        function validateDateFormat(e) {
+            const input = e.target;
+            const value = input.value.trim();
+            
+            if (!value) return; // Allow empty values
+            
+            // Regular expression for dd/mm/yyyy format
+            const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+            const match = value.match(dateRegex);
+            
+            if (!match) {
+                Swal.fire({
+                    title: 'รูปแบบวันที่ไม่ถูกต้อง',
+                    text: 'กรุณากรอกวันที่ในรูปแบบ วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                input.focus();
+                return;
+            }
+            
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10);
+            const year = parseInt(match[3], 10);
+            
+            // Basic validation
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2400 || year > 2600) {
+                Swal.fire({
+                    title: 'วันที่ไม่ถูกต้อง',
+                    text: 'กรุณาตรวจสอบวัน เดือน และปี พ.ศ. ให้ถูกต้อง',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                input.focus();
+            }
+        }
+        
+        // Initialize personnel sheet if needed
+        function initializePersonnelSheet() {
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=initialize&sheet=personnel')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Personnel sheet initialization:', data);
+                })
+                .catch(error => {
+                    console.error('Error initializing personnel sheet:', error);
+                });
+        }
+        
+        // Initialize savings sheet if needed
+        function initializeSavingsSheet() {
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=initialize&sheet=savings')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Savings sheet initialization:', data);
+                })
+                .catch(error => {
+                    console.error('Error initializing savings sheet:', error);
+                });
+        }
+        
+        // Load personnel data
+        function loadPersonnelData() {
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec')
+                .then(response => response.json())
+                .then(data => {
+                    // Store personnel data globally
+                    personnelData = data;
+                    
+                    // Create a map of personnel by ID for quick lookup
+                    personnelMap = {};
+                    data.forEach(person => {
+                        if (person.no) {
+                            personnelMap[person.no] = person;
+                        }
+                    });
+                    
+                    // Update personnel table
+                    updatePersonnelTable(data);
+                    
+                    // Populate personnel dropdown for savings form
+                    populatePersonnelDropdown(data);
+                })
+                .catch(error => {
+                    console.error('Error loading personnel data:', error);
+                    document.getElementById('personnel-body').innerHTML = '<tr><td colspan="10" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                });
+        }
+        
+        // Update personnel table
+        function updatePersonnelTable(data) {
+            const tableBody = document.getElementById('personnel-body');
+            
+            if (data && data.length > 0) {
+                tableBody.innerHTML = '';
+                
+                // Sort by sequence number in descending order to show latest first
+                data.sort((a, b) => parseInt(b.no) - parseInt(a.no));
+                
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-purple-100 hover:bg-purple-50';
+                    
+                    tr.innerHTML = `
+                        <td class="py-2 px-4">${row.no || ''}</td>
+                        <td class="py-2 px-4">${row.title || ''}</td>
+                        <td class="py-2 px-4">${row.name || ''}</td>
+                        <td class="py-2 px-4">${row.birthday || ''}</td>
+                        <td class="py-2 px-4">${row.workday || ''}</td>
+                        <td class="py-2 px-4">${row.phone || ''}</td>
+                        <td class="py-2 px-4">${row.address || ''}</td>
+                        <td class="py-2 px-4">${row.idline || ''}</td>
+                        <td class="py-2 px-4">${row.fb || ''}</td>
+                        <td class="py-2 px-4">${row.remake || ''}</td>
+                    `;
+                    
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4">ไม่พบข้อมูล</td></tr>';
+            }
+        }
+        
+        // Load personnel sequence number
+        function loadPersonnelSequenceNumber() {
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec')
+                .then(response => response.json())
+                .then(data => {
+                    // Set next sequence number for the personnel form
+                    const nextNo = getNextSequenceNumber(data);
+                    document.querySelector('input[name="personnel-no"]').value = nextNo;
+                    document.getElementById('auto-personnel-no').value = nextNo;
+                })
+                .catch(error => {
+                    console.error('Error loading personnel sequence number:', error);
+                    // Set default sequence number in case of error
+                    document.querySelector('input[name="personnel-no"]').value = 1;
+                    document.getElementById('auto-personnel-no').value = 1;
+                });
+        }
         
         // Get next sequence number
         function getNextSequenceNumber(data) {
@@ -311,28 +1386,72 @@
             return maxNo + 1;
         }
         
-        // Form submission
+        // Personnel form submission
         document.getElementById('personnel-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Update the title field before submission
+            updateTitleField();
+            
+            // Validate date fields
+            const birthdayField = document.querySelector('input[name="personnel-birthday"]');
+            const workdayField = document.querySelector('input[name="personnel-workday"]');
+            
+            if (birthdayField.value && !isValidDateFormat(birthdayField.value)) {
+                Swal.fire({
+                    title: 'รูปแบบวันที่ไม่ถูกต้อง',
+                    text: 'กรุณากรอกวันเกิดในรูปแบบ วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                birthdayField.focus();
+                return;
+            }
+            
+            if (workdayField.value && !isValidDateFormat(workdayField.value)) {
+                Swal.fire({
+                    title: 'รูปแบบวันที่ไม่ถูกต้อง',
+                    text: 'กรุณากรอกวันที่เริ่มทำงานในรูปแบบ วัน/เดือน/ปี พ.ศ. เช่น 1/1/2539',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                workdayField.focus();
+                return;
+            }
+            
+            // Validate title field
+            const titleField = document.getElementById('personnel-title');
+            if (!titleField.value) {
+                Swal.fire({
+                    title: 'กรุณาระบุคำนำหน้า',
+                    text: 'โปรดเลือกหรือระบุคำนำหน้า',
+                    icon: 'warning',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                document.getElementById('personnel-title-select').focus();
+                return;
+            }
+            
             // Show loading indicator
-            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('personnel-loading').classList.remove('hidden');
             
             const formData = new FormData(this);
-            const data = {};
             
-            formData.forEach((value, key) => {
-                if (key !== 'auto-no' && key !== 'birthday-iso' && key !== 'workday-iso') {
-                    data[key] = value;
-                }
-            });
-            
-            // Use the auto-generated sequence number
-            data.no = document.getElementById('auto-no').value;
-            
-            // Use ISO dates for storage
-            data.birthday = document.getElementById('birthday-iso').value;
-            data.workday = document.getElementById('workday-iso').value;
+            const data = {
+                no: document.getElementById('auto-personnel-no').value,
+                title: document.getElementById('personnel-title').value,
+                name: formData.get('personnel-name'),
+                birthday: formData.get('personnel-birthday'),
+                workday: formData.get('personnel-workday'),
+                phone: formData.get('personnel-phone'),
+                address: formData.get('personnel-address'),
+                idline: formData.get('personnel-idline'),
+                fb: formData.get('personnel-fb'),
+                remake: formData.get('personnel-remake')
+            };
             
             // Send data to Google Apps Script
             fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec', {
@@ -345,12 +1464,12 @@
             })
             .then(() => {
                 // Hide loading indicator
-                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('personnel-loading').classList.add('hidden');
                 
                 // Show success message
                 Swal.fire({
                     title: 'บันทึกสำเร็จ!',
-                    text: 'ข้อมูลถูกบันทึกเรียบร้อยแล้ว',
+                    text: 'ข้อมูลบุคลากรถูกบันทึกเรียบร้อยแล้ว',
                     icon: 'success',
                     confirmButtonText: 'ตกลง',
                     confirmButtonColor: '#9c6ade'
@@ -358,13 +1477,15 @@
                 
                 // Reset form
                 document.getElementById('personnel-form').reset();
+                document.getElementById('custom-title-container').style.display = 'none';
                 
                 // Refresh data and get new sequence number
-                loadData(true);
+                loadPersonnelData();
+                loadPersonnelSequenceNumber();
             })
             .catch(error => {
                 // Hide loading indicator
-                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('personnel-loading').classList.add('hidden');
                 
                 // Show error message
                 Swal.fire({
@@ -379,111 +1500,16 @@
             });
         });
         
-        // Load data from Google Sheet
-        function loadData(isAfterSubmit = false) {
-            const tableBody = document.getElementById('data-body');
-            tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>';
+        // Check if date format is valid (dd/mm/yyyy)
+        function isValidDateFormat(dateString) {
+            if (!dateString) return true; // Allow empty values
             
-            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec')
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        tableBody.innerHTML = '';
-                        
-                        // Set next sequence number for the form
-                        const nextNo = getNextSequenceNumber(data);
-                        document.querySelector('input[name="no"]').value = nextNo;
-                        document.getElementById('auto-no').value = nextNo;
-                        
-                        data.forEach(row => {
-                            const tr = document.createElement('tr');
-                            
-                            // Format dates for display
-                            const birthday = row.birthday ? formatThaiDate(row.birthday) : '';
-                            const workday = row.workday ? formatThaiDate(row.workday) : '';
-                            
-                            tr.innerHTML = `
-                                <td>${row.no || ''}</td>
-                                <td>${row.title || ''}</td>
-                                <td>${row.name || ''}</td>
-                                <td>${birthday}</td>
-                                <td>${workday}</td>
-                                <td>${row.phone || ''}</td>
-                                <td>${row.address || ''}</td>
-                                <td>${row.idline || ''}</td>
-                                <td>${row.fb || ''}</td>
-                                <td>${row.remake || ''}</td>
-                            `;
-                            
-                            tableBody.appendChild(tr);
-                        });
-                    } else {
-                        tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4">ไม่พบข้อมูล</td></tr>';
-                        
-                        // Set initial sequence number
-                        document.querySelector('input[name="no"]').value = 1;
-                        document.getElementById('auto-no').value = 1;
-                    }
-                    
-                    // If this is not after a form submission, switch to the data tab
-                    if (!isAfterSubmit && document.getElementById('data-section').classList.contains('hidden')) {
-                        document.getElementById('tab-data').click();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading data:', error);
-                    tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-                    
-                    // Set default sequence number in case of error
-                    document.querySelector('input[name="no"]').value = 1;
-                    document.getElementById('auto-no').value = 1;
-                });
-        }
-        
-        // Helper function to format date in Thai format with Buddhist Era
-        function formatThaiDate(dateString) {
-            try {
-                const date = new Date(dateString);
-                
-                // Convert to Buddhist Era (BE = CE + 543)
-                const thaiYear = date.getFullYear() + 543;
-                
-                // Thai month names
-                const thaiMonths = [
-                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-                ];
-                
-                const day = date.getDate();
-                const month = thaiMonths[date.getMonth()];
-                
-                return `${day} ${month} ${thaiYear}`;
-            } catch (e) {
-                return dateString;
-            }
-        }
-        
-        // Initialize - check if sheet exists and create if needed
-        function initializeSheet() {
-            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=initialize')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Sheet initialization:', data);
-                    // After initialization, load data to get the next sequence number
-                    loadData();
-                })
-                .catch(error => {
-                    console.error('Error initializing sheet:', error);
-                    // Set default sequence number in case of error
-                    document.querySelector('input[name="no"]').value = 1;
-                    document.getElementById('auto-no').value = 1;
-                });
-        }
-        
-        // Call initialization on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            initializeSheet();
-        });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94cd9e23a134a190',t:'MTc0OTQ0MDUzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+            // Regular expression for dd/mm/yyyy format
+            const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+            const match = dateString.match(dateRegex);
+            
+            if (!match) return false;
+            
+            <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94ceb741424fa18d',t:'MTc0OTQ1MjA0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
 </html>

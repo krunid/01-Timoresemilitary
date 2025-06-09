@@ -1,0 +1,177 @@
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f8f5ff;
+}
+.form-input {
+    border: 1px solid #d4c5f9;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    background-color: #fcfaff;
+    transition: border-color 0.15s ease-in-out;
+}
+.form-input:focus {
+    outline: none;
+    border-color: #9c6ade;
+    box-shadow: 0 0 0 3px rgba(156, 106, 222, 0.2);
+}
+.btn-primary {
+    background-color: #9c6ade;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out;
+}
+.btn-primary:hover {
+    background-color: #8a5ad0;
+}
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+.required-field::after {
+    content: "*";
+    color: #e53e3e;
+    margin-left: 2px;
+}
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #9c6ade;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.month-picker {
+    background-color: #fcfaff;
+    border: 1px solid #d4c5f9;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+}
+.month-picker:focus {
+    outline: none;
+    border-color: #9c6ade;
+    box-shadow: 0 0 0 3px rgba(156, 106, 222, 0.2);
+}
+.file-upload-note {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+.person-name-display {
+    font-size: 0.9rem;
+    color: #6b46c1;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding-left: 0.5rem;
+}
+.nav-tab {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+.nav-tab:hover {
+    background-color: rgba(156, 106, 222, 0.1);
+}
+.nav-tab.active {
+    border-bottom-color: #9c6ade;
+    color: #6b46c1;
+    background-color: rgba(156, 106, 222, 0.1);
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.date-format-hint {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+.title-input-container {
+    position: relative;
+}
+.custom-title-input {
+    display: none;
+    margin-top: 0.5rem;
+}
+.dashboard-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(156, 106, 222, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(156, 106, 222, 0.2);
+}
+.stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #6b46c1;
+}
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.report-section {
+    margin-bottom: 2rem;
+    page-break-inside: avoid;
+}
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.report-table th, .report-table td {
+    border: 1px solid #d4c5f9;
+    padding: 0.5rem;
+    text-align: left;
+}
+.report-table th {
+    background-color: #f3ebff;
+    color: #6b46c1;
+}
+.report-table tr:nth-child(even) {
+    background-color: #fcfaff;
+}
+@media print {
+    body {
+        background-color: white;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .print-only {
+        display: block !important;
+    }
+    .dashboard-card {
+        box-shadow: none;
+        border: 1px solid #d4c5f9;
+    }
+}
+.print-only {
+    display: none;
+}

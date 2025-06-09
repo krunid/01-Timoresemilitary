@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทะเบียนข้อมูลทหารติมอร์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_purple.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8f5ff;
+        }
+        .tab-active {
+            background-color: #9c6ade;
+            color: white;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #9c6ade;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .form-input {
+            border: 1px solid #d4c5f9;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            background-color: #fcfaff;
+            transition: border-color 0.15s ease-in-out;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #9c6ade;
+            box-shadow: 0 0 0 3px rgba(156, 106, 222, 0.2);
+        }
+        .btn-primary {
+            background-color: #9c6ade;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #8a5ad0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2d9f3;
+        }
+        th {
+            background-color: #e9dffc;
+            color: #5d4b8c;
+            font-weight: 500;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f5ff;
+        }
+        tr:hover {
+            background-color: #f0e8ff;
+        }
+        .required-field::after {
+            content: "*";
+            color: #e53e3e;
+            margin-left: 2px;
+        }
+        /* Thai date picker styling */
+        .flatpickr-input {
+            background-color: #fcfaff !important;
+        }
+        .flatpickr-day.selected, 
+        .flatpickr-day.startRange, 
+        .flatpickr-day.endRange, 
+        .flatpickr-day.selected.inRange, 
+        .flatpickr-day.startRange.inRange, 
+        .flatpickr-day.endRange.inRange, 
+        .flatpickr-day.selected:focus, 
+        .flatpickr-day.startRange:focus, 
+        .flatpickr-day.endRange:focus, 
+        .flatpickr-day.selected:hover, 
+        .flatpickr-day.startRange:hover, 
+        .flatpickr-day.endRange:hover, 
+        .flatpickr-day.selected.prevMonthDay, 
+        .flatpickr-day.startRange.prevMonthDay, 
+        .flatpickr-day.endRange.prevMonthDay, 
+        .flatpickr-day.selected.nextMonthDay, 
+        .flatpickr-day.startRange.nextMonthDay, 
+        .flatpickr-day.endRange.nextMonthDay {
+            background: #9c6ade;
+            border-color: #9c6ade;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <h1 class="text-2xl md:text-3xl font-semibold text-center">ทะเบียนข้อมูลทหารติมอร์</h1>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-purple-100 shadow-md">
+            <div class="container mx-auto px-4">
+                <div class="flex">
+                    <button id="tab-form" class="tab-active py-3 px-6 font-medium text-sm md:text-base transition-colors duration-200">
+                        บันทึกข้อมูล
+                    </button>
+                    <button id="tab-data" class="py-3 px-6 font-medium text-sm md:text-base text-purple-800 hover:bg-purple-200 transition-colors duration-200">
+                        ข้อมูลทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-grow container mx-auto px-4 py-6">
+            <!-- Form Section -->
+            <div id="form-section" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-medium text-purple-800 mb-4">กรอกข้อมูลทหาร</h2>
+                <p class="text-sm text-gray-600 mb-4">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
+                
+                <form id="personnel-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ลำดับที่ (ระบบจะกำหนดให้อัตโนมัติ)</label>
+                        <input type="text" name="no" class="form-input bg-gray-100" readonly disabled>
+                        <input type="hidden" id="auto-no" name="auto-no">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">คำนำหน้า/ยศ</label>
+                        <input type="text" name="title" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ชื่อ-นามสกุล</label>
+                        <input type="text" name="name" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">วัน/เดือน/ปี เกิด</label>
+                        <input type="text" name="birthday" class="form-input thai-datepicker" placeholder="เลือกวันที่" required>
+                        <input type="hidden" id="birthday-iso" name="birthday-iso">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">วัน/เดือน/ปี รับราชการ</label>
+                        <input type="text" name="workday" class="form-input thai-datepicker" placeholder="เลือกวันที่" required>
+                        <input type="hidden" id="workday-iso" name="workday-iso">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">เบอร์โทร</label>
+                        <input type="tel" name="phone" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required-field">ที่อยู่ปัจจุบัน</label>
+                        <textarea name="address" class="form-input" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ไอดีไลน์</label>
+                        <input type="text" name="idline" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เฟสบุ๊ค</label>
+                        <input type="text" name="fb" class="form-input">
+                    </div>
+                    
+                    <div class="form-group md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                        <textarea name="remake" class="form-input" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="md:col-span-2 mt-4">
+                        <button type="submit" class="btn-primary w-full md:w-auto">
+                            บันทึกข้อมูล
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="loading" class="hidden">
+                    <div class="loader"></div>
+                    <p class="text-center text-purple-700">กำลังบันทึกข้อมูล...</p>
+                </div>
+            </div>
+            
+            <!-- Data Section -->
+            <div id="data-section" class="bg-white rounded-lg shadow-md p-6 hidden">
+                <h2 class="text-xl font-medium text-purple-800 mb-4">ข้อมูลทหารทั้งหมด</h2>
+                
+                <div class="overflow-x-auto">
+                    <table id="data-table" class="w-full">
+                        <thead>
+                            <tr>
+                                <th>ลำดับที่</th>
+                                <th>ยศ</th>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>วันเกิด</th>
+                                <th>วันรับราชการ</th>
+                                <th>เบอร์โทร</th>
+                                <th>ที่อยู่</th>
+                                <th>ไอดีไลน์</th>
+                                <th>เฟสบุ๊ค</th>
+                                <th>หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-body">
+                            <tr>
+                                <td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-purple-800 text-white py-4">
+            <div class="container mx-auto px-4 text-center">
+                <p>&copy; 2025 ทะเบียนข้อมูลทหารติมอร์</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Thai date pickers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Thai locale for flatpickr
+            flatpickr.localize(flatpickr.l10ns.th);
+            
+            // Initialize birthday date picker
+            const birthdayPicker = flatpickr('.thai-datepicker[name="birthday"]', {
+                dateFormat: "d MMMM yyyy",
+                locale: "th",
+                yearOffset: 543, // Buddhist Era
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Store ISO date for submission
+                    const isoDate = selectedDates[0].toISOString().split('T')[0];
+                    document.getElementById('birthday-iso').value = isoDate;
+                }
+            });
+            
+            // Initialize workday date picker
+            const workdayPicker = flatpickr('.thai-datepicker[name="workday"]', {
+                dateFormat: "d MMMM yyyy",
+                locale: "th",
+                yearOffset: 543, // Buddhist Era
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Store ISO date for submission
+                    const isoDate = selectedDates[0].toISOString().split('T')[0];
+                    document.getElementById('workday-iso').value = isoDate;
+                }
+            });
+        });
+        
+        // Tab switching functionality
+        document.getElementById('tab-form').addEventListener('click', function() {
+            document.getElementById('form-section').classList.remove('hidden');
+            document.getElementById('data-section').classList.add('hidden');
+            document.getElementById('tab-form').classList.add('tab-active');
+            document.getElementById('tab-data').classList.remove('tab-active');
+        });
+        
+        document.getElementById('tab-data').addEventListener('click', function() {
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('data-section').classList.remove('hidden');
+            document.getElementById('tab-form').classList.remove('tab-active');
+            document.getElementById('tab-data').classList.add('tab-active');
+            loadData();
+        });
+        
+        // Get next sequence number
+        function getNextSequenceNumber(data) {
+            if (!data || data.length === 0) {
+                return 1;
+            }
+            
+            // Find the highest sequence number
+            let maxNo = 0;
+            data.forEach(row => {
+                const no = parseInt(row.no);
+                if (!isNaN(no) && no > maxNo) {
+                    maxNo = no;
+                }
+            });
+            
+            return maxNo + 1;
+        }
+        
+        // Form submission
+        document.getElementById('personnel-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading indicator
+            document.getElementById('loading').classList.remove('hidden');
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            formData.forEach((value, key) => {
+                if (key !== 'auto-no' && key !== 'birthday-iso' && key !== 'workday-iso') {
+                    data[key] = value;
+                }
+            });
+            
+            // Use the auto-generated sequence number
+            data.no = document.getElementById('auto-no').value;
+            
+            // Use ISO dates for storage
+            data.birthday = document.getElementById('birthday-iso').value;
+            data.workday = document.getElementById('workday-iso').value;
+            
+            // Send data to Google Apps Script
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'no-cors'
+            })
+            .then(() => {
+                // Hide loading indicator
+                document.getElementById('loading').classList.add('hidden');
+                
+                // Show success message
+                Swal.fire({
+                    title: 'บันทึกสำเร็จ!',
+                    text: 'ข้อมูลถูกบันทึกเรียบร้อยแล้ว',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                
+                // Reset form
+                document.getElementById('personnel-form').reset();
+                
+                // Refresh data and get new sequence number
+                loadData(true);
+            })
+            .catch(error => {
+                // Hide loading indicator
+                document.getElementById('loading').classList.add('hidden');
+                
+                // Show error message
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#9c6ade'
+                });
+                
+                console.error('Error:', error);
+            });
+        });
+        
+        // Load data from Google Sheet
+        function loadData(isAfterSubmit = false) {
+            const tableBody = document.getElementById('data-body');
+            tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>';
+            
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        tableBody.innerHTML = '';
+                        
+                        // Set next sequence number for the form
+                        const nextNo = getNextSequenceNumber(data);
+                        document.querySelector('input[name="no"]').value = nextNo;
+                        document.getElementById('auto-no').value = nextNo;
+                        
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            
+                            // Format dates for display
+                            const birthday = row.birthday ? formatThaiDate(row.birthday) : '';
+                            const workday = row.workday ? formatThaiDate(row.workday) : '';
+                            
+                            tr.innerHTML = `
+                                <td>${row.no || ''}</td>
+                                <td>${row.title || ''}</td>
+                                <td>${row.name || ''}</td>
+                                <td>${birthday}</td>
+                                <td>${workday}</td>
+                                <td>${row.phone || ''}</td>
+                                <td>${row.address || ''}</td>
+                                <td>${row.idline || ''}</td>
+                                <td>${row.fb || ''}</td>
+                                <td>${row.remake || ''}</td>
+                            `;
+                            
+                            tableBody.appendChild(tr);
+                        });
+                    } else {
+                        tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4">ไม่พบข้อมูล</td></tr>';
+                        
+                        // Set initial sequence number
+                        document.querySelector('input[name="no"]').value = 1;
+                        document.getElementById('auto-no').value = 1;
+                    }
+                    
+                    // If this is not after a form submission, switch to the data tab
+                    if (!isAfterSubmit && document.getElementById('data-section').classList.contains('hidden')) {
+                        document.getElementById('tab-data').click();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                    
+                    // Set default sequence number in case of error
+                    document.querySelector('input[name="no"]').value = 1;
+                    document.getElementById('auto-no').value = 1;
+                });
+        }
+        
+        // Helper function to format date in Thai format with Buddhist Era
+        function formatThaiDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                
+                // Convert to Buddhist Era (BE = CE + 543)
+                const thaiYear = date.getFullYear() + 543;
+                
+                // Thai month names
+                const thaiMonths = [
+                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                ];
+                
+                const day = date.getDate();
+                const month = thaiMonths[date.getMonth()];
+                
+                return `${day} ${month} ${thaiYear}`;
+            } catch (e) {
+                return dateString;
+            }
+        }
+        
+        // Initialize - check if sheet exists and create if needed
+        function initializeSheet() {
+            fetch('https://script.google.com/macros/s/AKfycbwpanLa78SMKtxUcD26pUdjsZ8sdBQx6T5HZAEs58NVNnvw7zMG_UvioVBCQSwIym3e/exec?action=initialize')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Sheet initialization:', data);
+                    // After initialization, load data to get the next sequence number
+                    loadData();
+                })
+                .catch(error => {
+                    console.error('Error initializing sheet:', error);
+                    // Set default sequence number in case of error
+                    document.querySelector('input[name="no"]').value = 1;
+                    document.getElementById('auto-no').value = 1;
+                });
+        }
+        
+        // Call initialization on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeSheet();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94cd9e23a134a190',t:'MTc0OTQ0MDUzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

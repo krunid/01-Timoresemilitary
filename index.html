@@ -1,20 +1,26 @@
-
-
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ทะเบียนข้อมูลทหารไทยไปติมอร์</title>
+  <title>ทะเบียนข้อมูลทหารติมอร์</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
-    
+
     body {
       font-family: 'Sarabun', sans-serif;
       background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-    
+
+    main {
+      flex: 1;
+    }
+
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -29,7 +35,7 @@
       z-index: 9999;
       color: white;
     }
-    
+
     .progress-bar {
       width: 300px;
       height: 10px;
@@ -38,19 +44,19 @@
       overflow: hidden;
       margin-top: 10px;
     }
-    
+
     .progress {
       height: 100%;
       background-color: #4f46e5;
       border-radius: 5px;
       transition: width 0.3s ease;
     }
-    
+
     .tab-active {
       background-color: #4f46e5;
       color: white;
     }
-    
+
     .notification {
       position: fixed;
       top: 20px;
@@ -63,40 +69,41 @@
       transform: translateY(-20px);
       transition: opacity 0.3s, transform 0.3s;
     }
-    
+
     .notification.show {
       opacity: 1;
       transform: translateY(0);
     }
-    
+
     .success {
       background-color: #10b981;
     }
-    
+
     .error {
       background-color: #ef4444;
     }
-    
+
     table {
       border-collapse: collapse;
       width: 100%;
     }
-    
-    th, td {
+
+    th,
+    td {
       padding: 8px 12px;
       text-align: left;
       border-bottom: 1px solid #e2e8f0;
     }
-    
+
     th {
       background-color: #f8fafc;
       font-weight: 600;
     }
-    
+
     tr:hover {
       background-color: #f1f5f9;
     }
-    
+
     .modal {
       display: none;
       position: fixed;
@@ -109,7 +116,7 @@
       justify-content: center;
       align-items: center;
     }
-    
+
     .modal-content {
       background-color: white;
       padding: 20px;
@@ -119,9 +126,26 @@
       max-height: 90vh;
       overflow-y: auto;
     }
+
+    footer {
+      margin-top: auto;
+    }
+
+    .highlight {
+      background-color: #fef3c7;
+    }
+
+    .logo {
+      max-width: 150px;
+      height: auto;
+      margin: 0 auto 15px auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
-<body class="min-h-screen">
+
+<body>
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="text-xl mb-2">กำลังดำเนินการ...</div>
@@ -129,18 +153,22 @@
       <div id="progress" class="progress" style="width: 0%"></div>
     </div>
   </div>
-  
+
   <!-- Notification -->
   <div id="notification" class="notification"></div>
-  
+
   <!-- Header -->
   <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-6 px-4 shadow-lg">
-    <div class="container mx-auto">
-      <h1 class="text-3xl font-bold text-center">ทะเบียนข้อมูลทหารไทยไปติมอร์</h1>
-      <p class="text-center mt-2 text-blue-100">ระบบจัดการข้อมูลทหารไทยไปติมอร์</p>
+    <div class="container mx-auto text-center">
+      <!-- Logo -->
+      <div class="flex justify-center mb-3">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/dc/INTERFET_Logo.jpg" alt="INTERFET Logo" class="logo">
+      </div>
+      <h1 class="text-3xl font-bold">ทะเบียนข้อมูลทหารติมอร์</h1>
+      <p class="mt-2 text-blue-100">ระบบจัดการข้อมูลทหารติมอร์</p>
     </div>
   </header>
-  
+
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-6">
     <!-- Tabs -->
@@ -148,11 +176,11 @@
       <button id="formTab" class="tab-active flex-1 py-3 text-center font-medium transition-colors duration-200">แบบฟอร์มบันทึกข้อมูล</button>
       <button id="dataTab" class="bg-gray-100 flex-1 py-3 text-center font-medium transition-colors duration-200">ข้อมูลทั้งหมด</button>
     </div>
-    
+
     <!-- Form Section -->
     <section id="formSection" class="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4 text-gray-800">บันทึกข้อมูลทหาร</h2>
-      
+
       <form id="personnelForm" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -192,48 +220,52 @@
               </label>
             </div>
           </div>
-          
+
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
             <input type="text" id="name" name="name" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-          
+
           <div>
             <label for="birthday" class="block text-sm font-medium text-gray-700 mb-1">วันเดือนปีเกิด <span class="text-red-500">*</span></label>
             <input type="date" id="birthday" name="birthday" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-          
+
           <div>
             <label for="workday" class="block text-sm font-medium text-gray-700 mb-1">วันที่รับราชการ <span class="text-red-500">*</span></label>
             <input type="date" id="workday" name="workday" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-          
+
           <div>
             <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร <span class="text-red-500">*</span></label>
-            <input type="tel" id="phone" name="phone" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <input type="tel" id="phone" name="phone" required
+                   pattern="(0[689]{1}[0-9]{8})|([0-9]{3}-[0-9]{3}-[0-9]{4})"
+                   placeholder="0xxxxxxxxx หรือ xxx-xxx-xxxx"
+                   class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <p class="mt-1 text-xs text-gray-500">รูปแบบ: 0xxxxxxxxx หรือ xxx-xxx-xxxx</p>
           </div>
-          
+
           <div>
             <label for="address" class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่ปัจจุบัน <span class="text-red-500">*</span></label>
             <textarea id="address" name="address" required rows="2" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
           </div>
-          
+
           <div>
             <label for="idLine" class="block text-sm font-medium text-gray-700 mb-1">ไอดีไลน์</label>
             <input type="text" id="idLine" name="idLine" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-          
+
           <div>
             <label for="fb" class="block text-sm font-medium text-gray-700 mb-1">เฟสบุ๊ค</label>
             <input type="text" id="fb" name="fb" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
         </div>
-        
+
         <div>
           <label for="remake" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
           <textarea id="remake" name="remake" rows="2" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
-        
+
         <div class="pt-4">
           <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
             บันทึกข้อมูล
@@ -241,7 +273,7 @@
         </div>
       </form>
     </section>
-    
+
     <!-- Data Section -->
     <section id="dataSection" class="bg-white rounded-lg shadow-md p-6" style="display: none;">
       <div class="flex justify-between items-center mb-4">
@@ -253,7 +285,21 @@
           รีเฟรช
         </button>
       </div>
-      
+
+      <!-- Search Box -->
+      <div class="mb-4">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" id="searchInput" placeholder="ค้นหาข้อมูล..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
         <table class="min-w-full">
           <thead>
@@ -273,13 +319,20 @@
           </tbody>
         </table>
       </div>
-      
+
       <div id="noData" class="text-center py-8 text-gray-500" style="display: none;">
         ไม่พบข้อมูล
       </div>
     </section>
   </main>
-  
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-4 px-4 mt-8">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2025 สงวนลิขสิทธิ์โปรแกรม จัดทำโดย พันจ่าเอกสุชาติ สิงห์วงศ์ ทะเบียนข้อมูลทหารติมอร์</p>
+    </div>
+  </footer>
+
   <!-- View Modal -->
   <div id="viewModal" class="modal">
     <div class="modal-content">
@@ -296,7 +349,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Edit Modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
@@ -310,7 +363,7 @@
       </div>
       <form id="editForm" class="space-y-4">
         <input type="hidden" id="editCodePer" name="codePer">
-        
+
         <div>
           <label for="editTitle" class="block text-sm font-medium text-gray-700 mb-1">คำนำหน้า/ยศ <span class="text-red-500">*</span></label>
           <div class="relative">
@@ -348,52 +401,56 @@
             </label>
           </div>
         </div>
-        
+
         <div>
           <label for="editName" class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
           <input type="text" id="editName" name="name" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div>
           <label for="editBirthday" class="block text-sm font-medium text-gray-700 mb-1">วันเดือนปีเกิด <span class="text-red-500">*</span></label>
           <input type="date" id="editBirthday" name="birthday" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div>
           <label for="editWorkday" class="block text-sm font-medium text-gray-700 mb-1">วันที่รับราชการ <span class="text-red-500">*</span></label>
           <input type="date" id="editWorkday" name="workday" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div>
           <label for="editPhone" class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร <span class="text-red-500">*</span></label>
-          <input type="tel" id="editPhone" name="phone" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          <input type="tel" id="editPhone" name="phone" required
+                 pattern="(0[689]{1}[0-9]{8})|([0-9]{3}-[0-9]{3}-[0-9]{4})"
+                 placeholder="0xxxxxxxxx หรือ xxx-xxx-xxxx"
+                 class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          <p class="mt-1 text-xs text-gray-500">รูปแบบ: 0xxxxxxxxx หรือ xxx-xxx-xxxx</p>
         </div>
-        
+
         <div>
           <label for="editAddress" class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่ปัจจุบัน <span class="text-red-500">*</span></label>
           <textarea id="editAddress" name="address" required rows="2" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
-        
+
         <div>
           <label for="editIdLine" class="block text-sm font-medium text-gray-700 mb-1">ไอดีไลน์</label>
           <input type="text" id="editIdLine" name="idLine" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div>
           <label for="editFb" class="block text-sm font-medium text-gray-700 mb-1">เฟสบุ๊ค</label>
           <input type="text" id="editFb" name="fb" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div>
           <label for="editRemake" class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
           <textarea id="editRemake" name="remake" rows="2" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
         </div>
-        
+
         <div>
           <label for="editPassword" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน <span class="text-red-500">*</span></label>
           <input type="password" id="editPassword" name="password" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div class="pt-4">
           <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
             บันทึกการแก้ไข
@@ -402,7 +459,7 @@
       </form>
     </div>
   </div>
-  
+
   <!-- Delete Modal -->
   <div id="deleteModal" class="modal">
     <div class="modal-content max-w-md">
@@ -416,15 +473,15 @@
       </div>
       <p class="mb-4">คุณต้องการลบข้อมูลของ <span id="deletePersonName" class="font-semibold"></span> ใช่หรือไม่?</p>
       <p class="mb-4 text-red-500">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
-      
+
       <form id="deleteForm" class="space-y-4">
         <input type="hidden" id="deleteCodePer" name="codePer">
-        
+
         <div>
           <label for="deletePassword" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน <span class="text-red-500">*</span></label>
           <input type="password" id="deletePassword" name="password" required class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        
+
         <div class="flex space-x-3 pt-2">
           <button type="button" class="close-modal flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
             ยกเลิก
@@ -436,7 +493,7 @@
       </form>
     </div>
   </div>
-  
+
   <script>
     // API URL
     const API_URL = 'https://script.google.com/macros/s/AKfycbzZeHjzim5fX93qghEbpNo_i3FGmHZSCfhhZr1lnGE0lvW7JBeylb5nc-TYLbZwYXz6cQ/exec';
@@ -453,6 +510,10 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const dataTable = document.getElementById('dataTable');
     const noData = document.getElementById('noData');
+    const searchInput = document.getElementById('searchInput');
+    
+    // Store original data for search functionality
+    let originalData = [];
     
     // Custom Title Checkbox
     const customTitleCheckbox = document.getElementById('customTitleCheckbox');
@@ -563,6 +624,58 @@
         }
       });
       
+      // Phone number validation
+      const phoneInput = document.getElementById('phone');
+      phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        
+        // Format as xxx-xxx-xxxx if length is appropriate
+        if (value.length > 6) {
+          value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+        } else if (value.length > 3) {
+          value = value.slice(0, 3) + '-' + value.slice(3);
+        }
+        
+        // If starts with 0, keep original format
+        if (this.value.startsWith('0')) {
+          value = this.value.replace(/[^\d]/g, '').substring(0, 10);
+        }
+        
+        // Only update if different to avoid cursor jumping
+        if (value !== this.value) {
+          this.value = value;
+        }
+      });
+      
+      // Edit phone number validation
+      const editPhoneInput = document.getElementById('editPhone');
+      editPhoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        
+        // Format as xxx-xxx-xxxx if length is appropriate
+        if (value.length > 6) {
+          value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+        } else if (value.length > 3) {
+          value = value.slice(0, 3) + '-' + value.slice(3);
+        }
+        
+        // If starts with 0, keep original format
+        if (this.value.startsWith('0')) {
+          value = this.value.replace(/[^\d]/g, '').substring(0, 10);
+        }
+        
+        // Only update if different to avoid cursor jumping
+        if (value !== this.value) {
+          this.value = value;
+        }
+      });
+      
+      // Search functionality
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        searchData(searchTerm);
+      });
+      
       // Form submission
       personnelForm.addEventListener('submit', handleFormSubmit);
       
@@ -623,6 +736,13 @@
         return;
       }
       
+      // Validate phone format
+      const phonePattern = /(0[689]{1}[0-9]{8})|([0-9]{3}-[0-9]{3}-[0-9]{4})/;
+      if (!phonePattern.test(data.phone)) {
+        showNotification('รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง', 'error');
+        return;
+      }
+      
       // Submit data
       submitData(data);
     }
@@ -676,7 +796,28 @@
         hideLoading();
         
         if (result.success) {
+          // Sort data to show most recent entries first (assuming higher Code_per values are more recent)
+          result.data.sort((a, b) => {
+            // Try to extract timestamp if available
+            const timestampA = new Date(a.timestamp || 0).getTime();
+            const timestampB = new Date(b.timestamp || 0).getTime();
+            
+            // If timestamps are valid and different, sort by them
+            if (!isNaN(timestampA) && !isNaN(timestampB) && timestampA !== timestampB) {
+              return timestampB - timestampA; // Descending order (newest first)
+            }
+            
+            // Otherwise, sort by Code_per (assuming higher values are more recent)
+            return parseInt(b.Code_per || 0) - parseInt(a.Code_per || 0);
+          });
+          
+          // Store original data for search functionality
+          originalData = [...result.data];
+          
           renderData(result.data);
+          
+          // Clear search input
+          searchInput.value = '';
         } else {
           showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + result.message, 'error');
         }
@@ -687,8 +828,31 @@
       });
     }
     
+    // Search data
+    function searchData(searchTerm) {
+      if (!searchTerm) {
+        renderData(originalData);
+        return;
+      }
+      
+      const filteredData = originalData.filter(item => {
+        return (
+          (item.Code_per && item.Code_per.toString().toLowerCase().includes(searchTerm)) ||
+          (item.title && item.title.toLowerCase().includes(searchTerm)) ||
+          (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+          (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
+          (item.address && item.address.toLowerCase().includes(searchTerm)) ||
+          (item.idLine && item.idLine.toLowerCase().includes(searchTerm)) ||
+          (item.fb && item.fb.toLowerCase().includes(searchTerm)) ||
+          (item.remake && item.remake.toLowerCase().includes(searchTerm))
+        );
+      });
+      
+      renderData(filteredData, searchTerm);
+    }
+    
     // Render data to table
-    function renderData(data) {
+    function renderData(data, searchTerm = '') {
       dataTable.innerHTML = '';
       
       if (data.length === 0) {
@@ -705,7 +869,8 @@
         const birthday = formatDate(item.birthday);
         const workday = formatDate(item.workday);
         
-        row.innerHTML = `
+        // Create row content
+        let rowContent = `
           <td>${item.no}</td>
           <td>${item.Code_per}</td>
           <td>${item.title}</td>
@@ -720,7 +885,13 @@
           </td>
         `;
         
+        row.innerHTML = rowContent;
         dataTable.appendChild(row);
+        
+        // Highlight search term if provided
+        if (searchTerm) {
+          highlightSearchTerm(row, searchTerm);
+        }
       });
       
       // Add event listeners to buttons
@@ -738,6 +909,28 @@
           document.getElementById('deleteCodePer').value = btn.dataset.id;
           deleteModal.style.display = 'flex';
         });
+      });
+    }
+    
+    // Highlight search term in table cells
+    function highlightSearchTerm(row, searchTerm) {
+      const cells = row.querySelectorAll('td:not(:last-child)'); // Skip the actions column
+      
+      cells.forEach(cell => {
+        const text = cell.textContent;
+        const lowerText = text.toLowerCase();
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        
+        if (lowerText.includes(lowerSearchTerm)) {
+          const startIndex = lowerText.indexOf(lowerSearchTerm);
+          const endIndex = startIndex + searchTerm.length;
+          
+          const beforeMatch = text.substring(0, startIndex);
+          const match = text.substring(startIndex, endIndex);
+          const afterMatch = text.substring(endIndex);
+          
+          cell.innerHTML = `${beforeMatch}<span class="highlight">${match}</span>${afterMatch}`;
+        }
       });
     }
     
@@ -869,6 +1062,13 @@
       // Validate required fields
       if (!data.title || !data.name || !data.birthday || !data.workday || !data.phone || !data.address || !data.password) {
         showNotification('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        return;
+      }
+      
+      // Validate phone format
+      const phonePattern = /(0[689]{1}[0-9]{8})|([0-9]{3}-[0-9]{3}-[0-9]{4})/;
+      if (!phonePattern.test(data.phone)) {
+        showNotification('รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง', 'error');
         return;
       }
       
@@ -1038,5 +1238,9 @@
       }
     }
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94e7fe9ab5b2a183',t:'MTc0OTcxNzExNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  <script>
+    (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94eeba62c63345b8',t:'MTc0OTc4NzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+  </script>
+</body>
+
 </html>
